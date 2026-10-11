@@ -140,6 +140,17 @@ const D={
 'Sign in':['Se connecter','تسجيل الدخول'],'Email':['E-mail','البريد الإلكتروني'],'Password':['Mot de passe','كلمة المرور'],'Signing in…':['Connexion…','جارٍ تسجيل الدخول…'],'Sign out':['Déconnexion','تسجيل الخروج'],
 'Wrong email or password.':['E-mail ou mot de passe incorrect.','البريد الإلكتروني أو كلمة المرور غير صحيحة.'],'Network error. Check your connection.':['Erreur réseau. Vérifiez votre connexion.','خطأ في الشبكة. تحقق من اتصالك.'],
 'This account is not authorized for this hotel.':["Ce compte n'est pas autorisé pour cet hôtel.",'هذا الحساب غير مصرّح له بالدخول إلى هذا الفندق.'],'Loading…':['Chargement…','جارٍ التحميل…'],
+'Permissions':['Permissions','الصلاحيات'],'Add employee':['Ajouter un employé','إضافة موظف'],'Employees':['Employés','الموظفون'],'Generate':['Générer','توليد'],'Save':['Enregistrer','حفظ'],'Creating…':['Création…','جارٍ الإنشاء…'],
+'Password (at least 6 characters)':['Mot de passe (6 caractères minimum)','كلمة المرور (6 أحرف على الأقل)'],
+'Employee created. Give them the email and password.':["Employé créé. Communiquez-lui l'e-mail et le mot de passe.",'تم إنشاء الموظف. سلّمه البريد وكلمة المرور.'],
+'Register guests (check-in)':['Enregistrer les clients (arrivée)','تسجيل النزلاء (الدخول)'],'Change room status and check out':["Changer l'état des chambres et enregistrer les départs",'تغيير حالات الغرف وتسجيل الخروج'],
+'Report incidents':['Signaler des incidents','تسجيل البلاغات'],'Cash drawer and shift closing':['Caisse et clôture de service','الصندوق وإغلاق الوردية'],'Print the police register':['Imprimer le registre de police','طباعة تقرير الشرطة'],
+'Disable':['Désactiver','تعطيل'],'Enable':['Activer','تفعيل'],'Disabled':['Désactivé','معطّل'],'Active':['Actif','نشط'],
+'Send password reset email':['Envoyer un e-mail de réinitialisation','إرسال رابط إعادة تعيين كلمة المرور'],'Password reset email sent.':['E-mail de réinitialisation envoyé.','تم إرسال رابط إعادة التعيين.'],
+'Manager — all permissions':['Gérant — toutes les permissions','المدير — كل الصلاحيات'],'Saved.':['Enregistré.','تم الحفظ.'],
+'This email is already registered.':['Cette adresse e-mail est déjà utilisée.','هذا البريد مسجَّل مسبقاً.'],'Password must be at least 6 characters.':['Le mot de passe doit contenir au moins 6 caractères.','يجب ألا تقل كلمة المرور عن 6 أحرف.'],
+'Invalid email address.':['Adresse e-mail invalide.','البريد الإلكتروني غير صالح.'],'Enter name, email and password.':["Saisissez le nom, l'e-mail et le mot de passe.",'أدخل الاسم والبريد وكلمة المرور.'],
+'No permissions granted yet':['Aucune permission accordée','لا توجد صلاحيات ممنوحة بعد'],
 'Archive':['Archives','الأرشيف'],'Stays':['Séjours','الإقامات'],'Shift closings':['Clôtures de service','إغلاقات الوردية'],'Search name, document, room or date':['Rechercher nom, pièce, chambre ou date','ابحث بالاسم أو الوثيقة أو الغرفة أو التاريخ'],
 'All':['Tous','الكل'],'In hotel':['Présents','داخل الفندق'],'Departed':['Partis','غادروا'],'Refresh':['Actualiser','تحديث'],'Load more':['Charger plus','تحميل المزيد'],
 '{0} stays · paid {1}':['{0} séjours · payé {1}','{0} إقامة · المدفوع {1}'],'Still in the hotel':["Toujours à l'hôtel",'ما زال في الفندق'],'Checked out {0}':['Départ {0}','غادر {0}'],
@@ -318,7 +329,7 @@ function Dashboard({s,openPolice}){
 }
 
 function ReceptionTab({s,toast}){
-  const {t,cur,A}=useL();
+  const {t,cur,A,can,openPolice}=useL();
   const free=s.rooms.filter(r=>r.status==='vacant');
   const blank={docType:CONFIG.docTypes[0],docId:'',name:'',dob:'',pob:'',nat:'',address:'',phone:'',plate:'',room:'',services:[],seq:s.nextSeq,outDate:addDays(1),amount:CONFIG.rate,method:'cash'};
   const [f,setF]=useState(blank);const [q,setQ]=useState('');
@@ -339,7 +350,7 @@ function ReceptionTab({s,toast}){
   const list=s.guests.filter(g=>(g.name+g.room).toLowerCase().includes(q.toLowerCase()));
   const sv=g=>g.services.map(t).join(', ');
   return(<div className="grid gap-4 lg:grid-cols-5">
-    <Card title={t('Quick check-in')} className="lg:col-span-2 self-start">
+    {can('checkin')&&<Card title={t('Quick check-in')} className="lg:col-span-2 self-start">
       <form onSubmit={submit} className="space-y-3">
         <div className="grid grid-cols-3 gap-3">
           <Field label={t('Entry no.')}><input type="number" className={inp} value={f.seq} onChange={e=>set('seq',e.target.value)}/></Field>
@@ -369,8 +380,9 @@ function ReceptionTab({s,toast}){
         </div>
         <button className={btn+' w-full'}>{t('Check in guest')}</button>
       </form>
-    </Card>
-    <Card title={t('Active guests ({0})',s.guests.length)} className="lg:col-span-3">
+    </Card>}
+    <Card title={t('Active guests ({0})',s.guests.length)} className={can('checkin')?'lg:col-span-3':'lg:col-span-5'}>
+      {can('police')&&<button className={btn2+' w-full mb-3'} onClick={openPolice}>{t('Generate Fiche de Police (A4)')}</button>}
       <input className={inp+' mb-3'} placeholder={t('Search by name or room number')} value={q} onChange={e=>setQ(e.target.value)}/>
       {list.length===0&&<p className="text-slate-500">{t('No guests match your search.')}</p>}
       <div className="hidden md:block overflow-x-auto"><table className="w-full text-sm text-start">
@@ -424,7 +436,7 @@ function RoomsTab({s,toast}){
 }
 
 function ShiftTab({s,toast}){
-  const {t,money,A,user}=useL();
+  const {t,money,A,user,can}=useL();
   const cash=s.payments.cash,exp=s.expenses.reduce((a,b)=>a+b.amount,0);
   const expected=s.shift.drawer+cash-exp;
   const [actual,setActual]=useState('');const [notes,setNotes]=useState('');
@@ -449,20 +461,20 @@ function ShiftTab({s,toast}){
       <ul className="mt-3 text-sm space-y-1">{s.attendance.slice(0,6).map(a=>(<li key={a.id} className="flex justify-between rounded-lg bg-slate-100 dark:bg-ink/60 px-3 py-2"><span>{a.name} · {a.date}</span><span dir="ltr">{a.start} → {a.end||t('ongoing')}</span></li>))}</ul>
       <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{t('Only the device time is recorded — no location is tracked.')}</p>
     </Card>
-    <Card title={t('Cash drawer')}>
+    {can('cash')&&<Card title={t('Cash drawer')}>
       {row(t('Starting drawer cash'),money(s.shift.drawer))}{row(t('+ Cash collected'),money(cash))}{row(t('− Petty expenses'),money(exp))}{row(t('Expected cash'),money(expected),true)}
       <div className="mt-4 text-sm text-slate-500 dark:text-slate-400">{t('Petty expenses')}</div>
       <ul className="text-sm mt-1">{s.expenses.map(x=>(<li key={x.id} className="flex justify-between py-1"><span>{t(x.label)}</span><span>{money(x.amount)}</span></li>))}{s.expenses.length===0&&<li className="text-slate-500">{t('None this shift.')}</li>}</ul>
       <div className="mt-2 flex gap-2"><input className={inp} placeholder={t('Expense')} value={el} onChange={e=>setEl(e.target.value)}/><input type="number" className={inp+' !w-28'} placeholder={t('Amount')} value={ea} onChange={e=>setEa(e.target.value)}/><button type="button" className={btn2} onClick={addExp}>{t('Add')}</button></div>
-    </Card>
-    <Card title={t('Close shift')} className="self-start">
+    </Card>}
+    {can('cash')&&<Card title={t('Close shift')} className="self-start">
       <form onSubmit={close} className="space-y-3">
         <Field label={t('Actual cash handed over')}><input type="number" className={inp} value={actual} onChange={e=>setActual(e.target.value)}/></Field>
         {diff!==null&&<div className={'rounded-lg p-3 text-sm '+(Math.abs(diff)<0.5?'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300':'bg-red-500/15 text-red-700 dark:text-red-300')}>{Math.abs(diff)<0.5?t('The drawer balances.'):t(diff>0?'Over by {0}':'Short by {0}',money(Math.abs(diff)))}</div>}
         <Field label={t('Notes for the next receptionist')}><textarea rows="4" className={inp} value={notes} onChange={e=>setNotes(e.target.value)}></textarea></Field>
         <button className={btn+' w-full'}>{t('Close shift and hand over')}</button>
       </form>
-    </Card>
+    </Card>}
   </div>);
 }
 
@@ -560,7 +572,78 @@ function ArchiveTab(){
   </div>);
 }
 
-const TABS=[['dash','Overview','▦'],['desk','Reception','✎'],['rooms','Rooms','▤'],['shift','Shift','◷'],['inc','Incidents','!'],['arch','Archive','▣']];
+const PERMS=[['checkin','Register guests (check-in)'],['rooms','Change room status and check out'],['incidents','Report incidents'],['cash','Cash drawer and shift closing'],['police','Print the police register']];
+const NOPERMS={checkin:false,rooms:false,incidents:false,cash:false,police:false};
+
+function PermBoxes({perms,onChange}){
+  const {t}=useL();
+  return(<div className="grid gap-2">{PERMS.map(([k,l])=>(<label key={k} className={'flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm cursor-pointer '+(perms[k]?'border-brass bg-brass/15':'border-slate-300 dark:border-slate-600')}><input type="checkbox" className="accent-amber-600 h-4 w-4" checked={!!perms[k]} onChange={e=>onChange({...perms,[k]:e.target.checked})}/>{t(l)}</label>))}</div>);
+}
+
+function StaffRow({m,toast}){
+  const {t}=useL();
+  const [open,setOpen]=useState(false);
+  const [draft,setDraft]=useState(m.perms||NOPERMS);
+  useEffect(()=>{setDraft({...NOPERMS,...(m.perms||{})})},[JSON.stringify(m.perms)]);
+  const isM=m.role==='manager';
+  const granted=PERMS.filter(([k])=>(m.perms||{})[k]).length;
+  const fail=e=>toast(t('Could not save: {0}',e&&e.code==='permission-denied'?t('permission denied'):((e&&e.code)||'error')));
+  const save=()=>col('staff').doc(m.id).update({perms:draft}).then(()=>toast(t('Saved.'))).catch(fail);
+  const toggle=()=>col('staff').doc(m.id).update({active:!(m.active===true)}).then(()=>toast(t('Saved.'))).catch(fail);
+  const reset=()=>auth.sendPasswordResetEmail(m.email).then(()=>toast(t('Password reset email sent.'))).catch(fail);
+  return(<li className={'rounded-xl bg-white dark:bg-deep border border-slate-200 dark:border-slate-700/60 '+(m.active===true?'':'opacity-60')}>
+    <button className="w-full text-start p-3" onClick={()=>setOpen(!open)}>
+      <div className="flex justify-between gap-2"><b>{m.name}</b><span className={'text-xs rounded-full px-2 py-0.5 '+(m.active===true?'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300':'bg-slate-500/20')}>{m.active===true?t('Active'):t('Disabled')}</span></div>
+      <div className="text-sm text-slate-500 dark:text-slate-400" dir="ltr" style={{textAlign:'start'}}>{m.email||'—'}</div>
+      <div className="text-xs mt-1 text-slate-500 dark:text-slate-400">{isM?t('Manager — all permissions'):(granted?PERMS.filter(([k])=>(m.perms||{})[k]).map(([,l])=>t(l)).join(' · '):t('No permissions granted yet'))}</div>
+    </button>
+    {open&&!isM&&<div className="px-3 pb-3 pt-2 border-t border-slate-200 dark:border-slate-700/60 space-y-3">
+      <PermBoxes perms={draft} onChange={setDraft}/>
+      <div className="flex flex-wrap gap-2"><button className={btn} onClick={save}>{t('Save')}</button><button className={btn2} onClick={toggle}>{m.active===true?t('Disable'):t('Enable')}</button>{m.email&&<button className={btn2} onClick={reset}>{t('Send password reset email')}</button>}</div>
+    </div>}
+  </li>);
+}
+
+function PermissionsTab({toast}){
+  const {t,user}=useL();
+  const [staff,setStaff]=useState(null);
+  const [nm,setNm]=useState('');const [em,setEm]=useState('');const [pw,setPw]=useState('');const [perms,setPerms]=useState(NOPERMS);
+  const [busy,setBusy]=useState(false);const [err,setErr]=useState('');
+  useEffect(()=>col('staff').onSnapshot(sn=>setStaff(sn.docs.map(x=>({...x.data(),id:x.id}))),()=>setStaff([])),[]);
+  const gen=()=>{const c='abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';const a=new Uint32Array(10);crypto.getRandomValues(a);let r='';a.forEach(n=>{r+=c[n%c.length]});setPw(r)};
+  const create=async e=>{e.preventDefault();setErr('');
+    if(!nm.trim()||!em.trim()||!pw){setErr(t('Enter name, email and password.'));return}
+    if(pw.length<6){setErr(t('Password must be at least 6 characters.'));return}
+    setBusy(true);let sec=null;
+    try{
+      sec=firebase.initializeApp(CONFIG.firebase,'sec'+Date.now());
+      const cr=await sec.auth().createUserWithEmailAndPassword(em.trim(),pw);
+      const uidN=cr.user.uid;
+      await sec.auth().signOut();
+      await col('staff').doc(uidN).set({name:nm.trim(),email:em.trim().toLowerCase(),role:'receptionist',active:true,perms,createdAt:Date.now(),createdBy:user.uid});
+      setNm('');setEm('');setPw('');setPerms(NOPERMS);toast(t('Employee created. Give them the email and password.'));
+    }catch(x){
+      const c=x&&x.code;
+      setErr(c==='auth/email-already-in-use'?t('This email is already registered.'):c==='auth/weak-password'?t('Password must be at least 6 characters.'):c==='auth/invalid-email'?t('Invalid email address.'):c==='auth/network-request-failed'?t('Network error. Check your connection.'):c==='permission-denied'?t('Could not save: {0}',t('permission denied')):(c||'error'));
+    }finally{if(sec){try{sec.delete()}catch(_){}}setBusy(false)}
+  };
+  return(<div className="grid gap-4 lg:grid-cols-2">
+    <Card title={t('Add employee')} className="self-start"><form onSubmit={create} className="space-y-3">
+      <Field label={t('Full name')}><input className={inp} value={nm} onChange={e=>setNm(e.target.value)} autoComplete="off"/></Field>
+      <Field label={t('Email')}><input type="email" dir="ltr" className={inp+' text-start'} value={em} onChange={e=>setEm(e.target.value)} autoComplete="off"/></Field>
+      <Field label={t('Password (at least 6 characters)')}><div className="flex gap-2"><input dir="ltr" className={inp+' text-start'} value={pw} onChange={e=>setPw(e.target.value)} autoComplete="off"/><button type="button" className={btn2} onClick={gen}>{t('Generate')}</button></div></Field>
+      <fieldset><legend className="text-sm text-slate-500 dark:text-slate-400 mb-1">{t('Permissions')}</legend><PermBoxes perms={perms} onChange={setPerms}/></fieldset>
+      {err&&<div role="alert" className="rounded-lg p-3 text-sm bg-red-500/15 text-red-700 dark:text-red-300">{err}</div>}
+      <button disabled={busy} className={btn+' w-full disabled:opacity-60'}>{busy?t('Creating…'):t('Save')}</button>
+    </form></Card>
+    <Card title={t('Employees')}>
+      {staff===null&&<p className="text-slate-500">{t('Loading…')}</p>}
+      <ul className="space-y-2">{(staff||[]).sort((a,b)=>(a.role==='manager'?-1:1)-(b.role==='manager'?-1:1)||(a.createdAt||0)-(b.createdAt||0)).map(m=><StaffRow key={m.id} m={m} toast={toast}/>)}</ul>
+    </Card>
+  </div>);
+}
+
+const TABS=[['dash','Overview','▦'],['desk','Reception','✎'],['rooms','Rooms','▤'],['shift','Shift','◷'],['inc','Incidents','!'],['arch','Archive','▣'],['perm','Permissions','⚙']];
 const LANGS=[['ar','عربي'],['fr','FR'],['en','EN']];
 const AUTHMSG={wrong:'Wrong email or password.',network:'Network error. Check your connection.',unauthorized:'This account is not authorized for this hotel.'};
 
@@ -606,13 +689,15 @@ function App(){
   const errH=e=>{if(!e)return;setMsg(t('Could not save: {0}',e.code==='permission-denied'?t('permission denied'):(e.code||e.message||'')))};
   const {s,ready,A}=useHotel(user||null,errH);
   const isMgr=!!user&&user.role==='manager';
-  const tabs=isMgr?TABS:TABS.filter(x=>x[0]!=='dash'&&x[0]!=='arch');
+  const can=k=>isMgr||!!(user&&user.perms&&user.perms[k]===true);
+  const tabs=TABS.filter(([k])=>k==='dash'||k==='arch'||k==='perm'?isMgr:k==='desk'?(can('checkin')||can('police')):k==='rooms'?can('rooms'):k==='inc'?can('incidents'):true);
+  const show=k=>tab===k&&tabs.some(x=>x[0]===k);
   useEffect(()=>{if(ENV_ERR)return;const un=auth.onAuthStateChanged(async u=>{
     if(!u){setUser(null);return}
     try{
       const sn=await col('staff').doc(u.uid).get();
       const d=sn.exists?sn.data():null;
-      if(d&&d.active===true){setUser({uid:u.uid,email:u.email,name:d.name||u.email,role:d.role==='manager'?'manager':'receptionist'})}
+      if(d&&d.active===true){setUser({uid:u.uid,email:u.email,name:d.name||u.email,role:d.role==='manager'?'manager':'receptionist',perms:d.perms||{}})}
       else{setAuthErr({k:'unauthorized',n:Date.now()});setUser(null);auth.signOut()}
     }catch(e){
       setAuthErr({k:e&&e.code==='permission-denied'?'unauthorized':'network',n:Date.now()});setUser(null);auth.signOut();
@@ -620,7 +705,13 @@ function App(){
   });
   const tm=setTimeout(()=>{setUser(u=>{if(u===undefined){setAuthErr({k:'network',n:Date.now()});return null}return u})},10000);
   return()=>{un();clearTimeout(tm)}},[]);
-  useEffect(()=>{if(user)setTab(user.role==='manager'?'dash':'desk')},[user&&user.uid]);
+  useEffect(()=>{if(!user)return;
+    return col('staff').doc(user.uid).onSnapshot(sn=>{const d=sn.exists?sn.data():null;
+      if(!d||d.active!==true){auth.signOut();return}
+      setUser(u=>u&&({...u,name:d.name||u.email,role:d.role==='manager'?'manager':'receptionist',perms:d.perms||{}}))},()=>{});
+  },[user&&user.uid]);
+  useEffect(()=>{if(user)setTab(tabs[0][0])},[user&&user.uid]);
+  useEffect(()=>{if(user&&!tabs.some(x=>x[0]===tab))setTab(tabs[0][0])});
   useEffect(()=>{document.documentElement.classList.toggle('dark',dark);try{localStorage.setItem('hotel:theme',dark?'dark':'light')}catch(e){}},[dark]);
   useEffect(()=>{document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';try{localStorage.setItem('hotel:lang',lang)}catch(e){}},[lang]);
   useEffect(()=>{if(!msg)return;const x=setTimeout(()=>setMsg(''),2800);return()=>clearTimeout(x)},[msg]);
@@ -628,7 +719,7 @@ function App(){
   useEffect(()=>{const bump=()=>{last.current=Date.now()};const ev=['pointerdown','keydown','touchstart'];ev.forEach(e=>window.addEventListener(e,bump));
     const iv=setInterval(()=>{if(user&&user.role!=='manager'&&Date.now()-last.current>CONFIG.lockMinutes*60000)auth.signOut()},5000);
     return()=>{ev.forEach(e=>window.removeEventListener(e,bump));clearInterval(iv)}},[user&&user.uid]);
-  const ctx={t,tf,money,cur,isMgr,A,user};
+  const ctx={t,tf,money,cur,isMgr,A,user,can,openPolice:()=>setPolice(true)};
   if(ENV_ERR)return(<Ctx.Provider value={ctx}><div className="min-h-screen grid place-items-center p-6 text-center"><div className="max-w-sm"><div className="text-4xl mb-3">⚠</div><p>{t(ENV_ERR==='sdk'?'Could not load Firebase. Check your internet connection and open the website address.':'This app must be opened from its website address (https), not as a local file.')}</p></div></div></Ctx.Provider>);
   if(user===undefined)return(<Ctx.Provider value={ctx}><div className="min-h-screen grid place-items-center text-slate-500">{t('Loading…')}</div></Ctx.Provider>);
   if(!user)return(<Ctx.Provider value={ctx}><Login lang={lang} setLang={setLang} dark={dark} setDark={setDark} err={authErr}/></Ctx.Provider>);
@@ -655,11 +746,11 @@ function App(){
       </header>
       <main className="px-4 md:px-8">
         {noRooms?(isMgr?<Card title={t('Hotel setup')}><p className="mb-3">{t('No rooms yet. Create the rooms to start.')}</p><button className={btn} onClick={()=>A.initRooms()}>{t('Create {0} rooms',CONFIG.floors.length*CONFIG.roomsPerFloor)}</button></Card>:<Card><p>{t('The manager has not set up the rooms yet.')}</p></Card>):(<>
-          {tab==='dash'&&isMgr&&<Dashboard {...P} openPolice={()=>setPolice(true)}/>}{tab==='desk'&&<ReceptionTab {...P}/>}{tab==='rooms'&&<RoomsTab {...P}/>}{tab==='shift'&&<ShiftTab {...P}/>}{tab==='inc'&&<IncidentsTab {...P}/>}{tab==='arch'&&isMgr&&<ArchiveTab/>}</>)}
+          {show('dash')&&<Dashboard {...P} openPolice={()=>setPolice(true)}/>}{show('desk')&&<ReceptionTab {...P}/>}{show('rooms')&&<RoomsTab {...P}/>}{show('shift')&&<ShiftTab {...P}/>}{show('inc')&&<IncidentsTab {...P}/>}{show('arch')&&<ArchiveTab/>}{show('perm')&&<PermissionsTab toast={setMsg}/>}</>)}
       </main>
     </div>
-    <nav className={'md:hidden fixed bottom-0 inset-x-0 bg-ink text-slate-300 grid border-t border-white/10 '+(isMgr?'grid-cols-6':'grid-cols-4')} style={{paddingBottom:'env(safe-area-inset-bottom,0px)'}}>
-      {tabs.map(([k,l,i])=>(<button key={k} onClick={()=>setTab(k)} className={'py-2.5 text-xs flex flex-col items-center gap-0.5 '+(tab===k?'text-brass font-semibold':'')}><span className="text-lg leading-none">{i}</span>{t(l)}</button>))}
+    <nav className={'md:hidden fixed bottom-0 inset-x-0 bg-ink text-slate-300 grid border-t border-white/10 '+({3:'grid-cols-3',4:'grid-cols-4',5:'grid-cols-5',6:'grid-cols-6',7:'grid-cols-7'}[tabs.length]||'grid-cols-4')} style={{paddingBottom:'env(safe-area-inset-bottom,0px)'}}>
+      {tabs.map(([k,l,i])=>(<button key={k} onClick={()=>setTab(k)} className={'py-2.5 '+(tabs.length>5?'text-[10px]':'text-xs')+' flex flex-col items-center gap-0.5 '+(tab===k?'text-brass font-semibold':'')}><span className="text-lg leading-none">{i}</span>{t(l)}</button>))}
     </nav>
     {police&&<Police s={s} onClose={()=>setPolice(false)}/>}
     {msg&&<div role="status" className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] rounded-lg bg-brass text-ink px-4 py-2.5 shadow-lg text-sm font-medium max-w-[90vw]" style={{marginTop:'env(safe-area-inset-top,0px)'}}>{msg}</div>}
