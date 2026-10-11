@@ -139,7 +139,11 @@ const D={
 'Water leak from the ceiling.':["Fuite d'eau au plafond.",'تسرّب مياه من السقف.'],'Guest moved to another room.':['Client transféré dans une autre chambre.','تم نقل النزيل إلى غرفة أخرى.'],
 'Sign in':['Se connecter','تسجيل الدخول'],'Email':['E-mail','البريد الإلكتروني'],'Password':['Mot de passe','كلمة المرور'],'Signing in…':['Connexion…','جارٍ تسجيل الدخول…'],'Sign out':['Déconnexion','تسجيل الخروج'],
 'Wrong email or password.':['E-mail ou mot de passe incorrect.','البريد الإلكتروني أو كلمة المرور غير صحيحة.'],'Network error. Check your connection.':['Erreur réseau. Vérifiez votre connexion.','خطأ في الشبكة. تحقق من اتصالك.'],
-'This account is not authorized for this hotel.':["Ce compte n'est pas autorisé pour cet hôtel.",'هذا الحساب غير مصرّح له بالدخول إلى هذا الفندق.'],'Loading…':['Chargement…','جارٍ التحميل…'],'Could not load Firebase. Check your internet connection and open the website address.':["Impossible de charger Firebase. Vérifiez votre connexion et ouvrez l'adresse du site.",'تعذّر تحميل Firebase. تحقق من اتصالك بالإنترنت وافتح التطبيق من عنوان الموقع.'],'This app must be opened from its website address (https), not as a local file.':["Cette application doit être ouverte depuis l'adresse du site (https), pas comme fichier local.",'يجب فتح هذا التطبيق من عنوان الموقع (https) وليس كملف محلي على الجهاز.'],
+'This account is not authorized for this hotel.':["Ce compte n'est pas autorisé pour cet hôtel.",'هذا الحساب غير مصرّح له بالدخول إلى هذا الفندق.'],'Loading…':['Chargement…','جارٍ التحميل…'],
+'Archive':['Archives','الأرشيف'],'Stays':['Séjours','الإقامات'],'Shift closings':['Clôtures de service','إغلاقات الوردية'],'Search name, document, room or date':['Rechercher nom, pièce, chambre ou date','ابحث بالاسم أو الوثيقة أو الغرفة أو التاريخ'],
+'All':['Tous','الكل'],'In hotel':['Présents','داخل الفندق'],'Departed':['Partis','غادروا'],'Refresh':['Actualiser','تحديث'],'Load more':['Charger plus','تحميل المزيد'],
+'{0} stays · paid {1}':['{0} séjours · payé {1}','{0} إقامة · المدفوع {1}'],'Still in the hotel':["Toujours à l'hôtel",'ما زال في الفندق'],'Checked out {0}':['Départ {0}','غادر {0}'],
+'Registered by {0}':['Enregistré par {0}','سُجّل بواسطة {0}'],'No records found.':['Aucun enregistrement.','لا توجد سجلات.'],'Variance':['Écart','الفرق'],'Collected':['Encaissé','المحصّل'],'Closed by {0}':['Clôturé par {0}','أغلقها {0}'],'Could not load Firebase. Check your internet connection and open the website address.':["Impossible de charger Firebase. Vérifiez votre connexion et ouvrez l'adresse du site.",'تعذّر تحميل Firebase. تحقق من اتصالك بالإنترنت وافتح التطبيق من عنوان الموقع.'],'This app must be opened from its website address (https), not as a local file.':["Cette application doit être ouverte depuis l'adresse du site (https), pas comme fichier local.",'يجب فتح هذا التطبيق من عنوان الموقع (https) وليس كملف محلي على الجهاز.'],
 'Hotel setup':["Configuration de l'hôtel",'إعداد الفندق'],'No rooms yet. Create the rooms to start.':['Aucune chambre. Créez les chambres pour commencer.','لا توجد غرف بعد. أنشئ الغرف للبدء.'],'Create {0} rooms':['Créer {0} chambres','إنشاء {0} غرفة'],
 'The manager has not set up the rooms yet.':["Le gérant n'a pas encore configuré les chambres.",'لم يُعدّ المدير الغرف بعد.'],'Could not save: {0}':["Échec de l'enregistrement : {0}",'تعذّر الحفظ: {0}'],'permission denied':['permission refusée','لا تملك الصلاحية'],
 };
@@ -199,7 +203,9 @@ function useHotel(user,onError){
       startShift:w(()=>col('attendance').doc(uid()).set({uid:user.uid,name:user.name,date:ymd(),start:hhmm(),end:null,ts:Date.now()})),
       endShift:w(id=>col('attendance').doc(id).update({end:hhmm()})),
       addExpense:w((label,amount)=>S().set({expenses:FV.arrayUnion({id:uid(),label,amount})},{merge:true})),
-      closeShift:w((handover,actual)=>S().set({handover,payments:{cash:0,card:0},expenses:[],shift:{drawer:actual,start:hhmm()}},{merge:true})),
+      closeShift:w((handover,actual,record)=>{const b=fs.batch();
+        b.set(S(),{handover,payments:{cash:0,card:0},expenses:[],shift:{drawer:actual,start:hhmm()}},{merge:true});
+        b.set(col('shifts').doc(uid()),{...record,uid:user.uid,ts:Date.now()});return b.commit()}),
       addIncident:w(o=>col('incidents').doc(uid()).set({...o,resolved:false,time:hhmm(),by:user.name,ts:Date.now()})),
       resolveIncident:w(id=>col('incidents').doc(id).update({resolved:true})),
       initRooms:w(()=>{const b=fs.batch();
@@ -328,7 +334,7 @@ function ReceptionTab({s,toast}){
     const room=Number(f.room);
     const rm=s.rooms.find(x=>x.id===room);
     if(!rm||rm.status!=='vacant'){toast(t('This room is no longer available.'));set('room','');return}
-    A.checkIn({seq:Number(f.seq),docType:f.docType,docId:f.docId.trim(),name:f.name,dob:f.dob,pob:f.pob,nat:f.nat,address:f.address,phone:f.phone,plate:f.plate,room,services:f.services,time:hhmm(),inDate:ymd(),outDate:f.outDate},f.method,Number(f.amount||0),Number(f.seq)+1);
+    A.checkIn({seq:Number(f.seq),docType:f.docType,docId:f.docId.trim(),name:f.name,dob:f.dob,pob:f.pob,nat:f.nat,address:f.address,phone:f.phone,plate:f.plate,room,services:f.services,time:hhmm(),inDate:ymd(),outDate:f.outDate,paidAmount:Number(f.amount||0),paidMethod:f.method},f.method,Number(f.amount||0),Number(f.seq)+1);
     setF({...blank,seq:Number(f.seq)+1});toast(t('Guest checked in to room {0}.',room));};
   const list=s.guests.filter(g=>(g.name+g.room).toLowerCase().includes(q.toLowerCase()));
   const sv=g=>g.services.map(t).join(', ');
@@ -429,7 +435,7 @@ function ShiftTab({s,toast}){
   const endS=()=>{if(!open)return;A.endShift(open.id);toast(t('Not on shift'))};
   const addExp=()=>{if(!el||!ea)return;A.addExpense(el,Number(ea));setEl('');setEa('')};
   const close=e=>{e.preventDefault();if(actual===''){toast(t('Enter the cash handed over.'));return}
-    A.closeShift({notes,actual:Number(actual),expected,by:user.name,time:hhmm()},Number(actual));
+    A.closeShift({notes,actual:Number(actual),expected,by:user.name,time:hhmm()},Number(actual),{date:ymd(),time:hhmm(),by:user.name,notes,expected,actual:Number(actual),diff:Number(actual)-expected,cash:s.payments.cash,card:s.payments.card,expenses:exp,drawerStart:s.shift.drawer});
     setActual('');setNotes('');toast(t('Shift closed. The next receptionist starts with {0}.',money(actual)))};
   const row=(l,v,b)=>(<div className={'flex justify-between py-1.5 '+(b?'font-semibold border-t border-slate-300 dark:border-slate-600 mt-1 pt-2':'')}><span>{l}</span><span>{v}</span></div>);
   return(<div className="grid gap-4 lg:grid-cols-2">
@@ -491,7 +497,70 @@ function IncidentsTab({s,toast}){
   </div>);
 }
 
-const TABS=[['dash','Overview','▦'],['desk','Reception','✎'],['rooms','Rooms','▤'],['shift','Shift','◷'],['inc','Incidents','!']];
+function ArchiveTab(){
+  const {t,money}=useL();
+  const [sub,setSub]=useState('stays');
+  const [rows,setRows]=useState(null);const [lim,setLim]=useState(300);
+  const [q,setQ]=useState('');const [flt,setFlt]=useState('all');const [open,setOpen]=useState(null);
+  const [err,setErr]=useState('');const [tick,setTick]=useState(0);
+  useEffect(()=>{setRows(null);setErr('');
+    col(sub==='stays'?'guests':'shifts').orderBy('ts','desc').limit(lim).get()
+      .then(sn=>setRows(sn.docs.map(x=>({...x.data(),id:x.id}))))
+      .catch(e=>{setErr(e.code||'error');setRows([])});
+  },[sub,lim,tick]);
+  const fdt=ts=>{if(!ts)return'—';const d=new Date(ts);return ymd(d)+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})};
+  const ql=q.trim().toLowerCase();
+  const list=(rows||[]).filter(g=>sub==='stays'
+    ?((flt==='all'||(flt==='in'?g.active!==false:g.active===false))&&(!ql||[g.name,g.docId,g.room,g.inDate,g.outDate,g.phone,g.nat,fdt(g.outAt)].join(' ').toLowerCase().includes(ql)))
+    :(!ql||[g.by,g.date,g.notes].join(' ').toLowerCase().includes(ql)));
+  const paid=list.reduce((a,g)=>a+(Number(g.paidAmount)||0),0);
+  const pill=(k,l)=>(<button key={k} onClick={()=>{setSub(k);setOpen(null)}} className={'px-4 py-2 text-sm '+(sub===k?'bg-brass text-ink font-semibold':'')}>{l}</button>);
+  return(<div>
+    <div className="flex flex-wrap items-center gap-2 mb-3">
+      <div className="flex rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden">{pill('stays',t('Stays'))}{pill('shifts',t('Shift closings'))}</div>
+      <button className={btn2+' !py-2 text-sm ms-auto'} onClick={()=>setTick(x=>x+1)}>{t('Refresh')}</button>
+    </div>
+    <input className={inp+' mb-3'} placeholder={t('Search name, document, room or date')} value={q} onChange={e=>setQ(e.target.value)}/>
+    {sub==='stays'&&<div className="flex gap-2 mb-3">{[['all','All'],['in','In hotel'],['out','Departed']].map(([k,l])=>(<button key={k} onClick={()=>setFlt(k)} className={'rounded-full border px-3 py-1 text-sm '+(flt===k?'border-brass bg-brass/20 font-semibold':'border-slate-300 dark:border-slate-600')}>{t(l)}</button>))}</div>}
+    {sub==='stays'&&rows&&<p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{t('{0} stays · paid {1}',list.length,money(paid))}</p>}
+    {err&&<div role="alert" className="rounded-lg p-3 text-sm bg-red-500/15 text-red-700 dark:text-red-300 mb-3">{t('Could not save: {0}',err==='permission-denied'?t('permission denied'):err)}</div>}
+    {rows===null&&<p className="text-slate-500">{t('Loading…')}</p>}
+    {rows&&list.length===0&&!err&&<p className="text-slate-500">{t('No records found.')}</p>}
+    <ul className="space-y-2">{list.map(g=>sub==='stays'?(
+      <li key={g.id} className="rounded-xl bg-white dark:bg-deep border border-slate-200 dark:border-slate-700/60">
+        <button className="w-full text-start p-3" onClick={()=>setOpen(open===g.id?null:g.id)}>
+          <div className="flex justify-between gap-2"><b>{g.name}</b><b>{t('Room {0}',g.room)}</b></div>
+          <div className="text-sm text-slate-500 dark:text-slate-400">{t(g.docType)} {g.docId} · {g.inDate} {g.time}</div>
+          <div className="text-sm mt-1 flex justify-between gap-2"><span className={g.active===false?'text-slate-500 dark:text-slate-400':'text-emerald-600 dark:text-emerald-400'}>{g.active===false?t('Checked out {0}',fdt(g.outAt)):t('Still in the hotel')}</span><span>{g.paidAmount!=null?money(g.paidAmount)+' · '+t(g.paidMethod==='card'?'Card':'Cash'):'—'}</span></div>
+        </button>
+        {open===g.id&&<div className="px-3 pb-3 text-sm space-y-1 border-t border-slate-200 dark:border-slate-700/60 pt-2">
+          <div>{t('Entry no.')}: {g.seq}</div>
+          <div dir="ltr" className="text-start">{g.phone}</div>
+          {(g.dob||g.pob)&&<div>{t('Date of birth')}: {g.dob||'—'} · {g.pob||'—'}</div>}
+          {g.nat&&<div>{t('Nationality')}: {t(g.nat)}</div>}{g.address&&<div>{t('Address')}: {g.address}</div>}
+          {g.plate&&<div>{t('Vehicle plate (optional)')}: <span dir="ltr">{g.plate}</span></div>}
+          <div>{t('Services: {0}',(g.services||[]).map(t).join(', ')||t('none'))}</div>
+          <div>{t('Expected check-out')}: {g.outDate||'—'}</div>
+          <div className="text-slate-500 dark:text-slate-400">{t('Registered by {0}',g.by||'—')}</div>
+        </div>}
+      </li>):(
+      <li key={g.id} className="rounded-xl bg-white dark:bg-deep border border-slate-200 dark:border-slate-700/60 p-3 text-sm">
+        <div className="flex justify-between gap-2"><b>{g.date} · {g.time}</b><span className="text-slate-500 dark:text-slate-400">{t('Closed by {0}',g.by)}</span></div>
+        <div className="mt-2 space-y-1">
+          <div className="flex justify-between"><span>{t('Starting drawer cash')}</span><span>{money(g.drawerStart)}</span></div>
+          <div className="flex justify-between"><span>{t('Collected')}</span><span>{t('Cash')} {money(g.cash)} · {t('Card')} {money(g.card)}</span></div>
+          <div className="flex justify-between"><span>{t('− Petty expenses')}</span><span>{money(g.expenses)}</span></div>
+          <div className="flex justify-between"><span>{t('Expected cash')}</span><span>{money(g.expected)}</span></div>
+          <div className="flex justify-between"><span>{t('Actual cash handed over')}</span><span>{money(g.actual)}</span></div>
+          <div className={'flex justify-between font-semibold '+(Math.abs(g.diff||0)<0.5?'text-emerald-600 dark:text-emerald-400':'text-red-600 dark:text-red-400')}><span>{t('Variance')}</span><span>{(g.diff>0?'+':'')+money(g.diff)}</span></div>
+        </div>
+        {g.notes&&<p className="mt-2 rounded-lg bg-slate-100 dark:bg-ink/60 p-2">{g.notes}</p>}
+      </li>))}</ul>
+    {rows&&rows.length>=lim&&<button className={btn2+' w-full mt-3'} onClick={()=>setLim(lim+300)}>{t('Load more')}</button>}
+  </div>);
+}
+
+const TABS=[['dash','Overview','▦'],['desk','Reception','✎'],['rooms','Rooms','▤'],['shift','Shift','◷'],['inc','Incidents','!'],['arch','Archive','▣']];
 const LANGS=[['ar','عربي'],['fr','FR'],['en','EN']];
 const AUTHMSG={wrong:'Wrong email or password.',network:'Network error. Check your connection.',unauthorized:'This account is not authorized for this hotel.'};
 
@@ -537,7 +606,7 @@ function App(){
   const errH=e=>{if(!e)return;setMsg(t('Could not save: {0}',e.code==='permission-denied'?t('permission denied'):(e.code||e.message||'')))};
   const {s,ready,A}=useHotel(user||null,errH);
   const isMgr=!!user&&user.role==='manager';
-  const tabs=isMgr?TABS:TABS.filter(x=>x[0]!=='dash');
+  const tabs=isMgr?TABS:TABS.filter(x=>x[0]!=='dash'&&x[0]!=='arch');
   useEffect(()=>{if(ENV_ERR)return;const un=auth.onAuthStateChanged(async u=>{
     if(!u){setUser(null);return}
     try{
@@ -586,10 +655,10 @@ function App(){
       </header>
       <main className="px-4 md:px-8">
         {noRooms?(isMgr?<Card title={t('Hotel setup')}><p className="mb-3">{t('No rooms yet. Create the rooms to start.')}</p><button className={btn} onClick={()=>A.initRooms()}>{t('Create {0} rooms',CONFIG.floors.length*CONFIG.roomsPerFloor)}</button></Card>:<Card><p>{t('The manager has not set up the rooms yet.')}</p></Card>):(<>
-          {tab==='dash'&&isMgr&&<Dashboard {...P} openPolice={()=>setPolice(true)}/>}{tab==='desk'&&<ReceptionTab {...P}/>}{tab==='rooms'&&<RoomsTab {...P}/>}{tab==='shift'&&<ShiftTab {...P}/>}{tab==='inc'&&<IncidentsTab {...P}/>}</>)}
+          {tab==='dash'&&isMgr&&<Dashboard {...P} openPolice={()=>setPolice(true)}/>}{tab==='desk'&&<ReceptionTab {...P}/>}{tab==='rooms'&&<RoomsTab {...P}/>}{tab==='shift'&&<ShiftTab {...P}/>}{tab==='inc'&&<IncidentsTab {...P}/>}{tab==='arch'&&isMgr&&<ArchiveTab/>}</>)}
       </main>
     </div>
-    <nav className={'md:hidden fixed bottom-0 inset-x-0 bg-ink text-slate-300 grid border-t border-white/10 '+(isMgr?'grid-cols-5':'grid-cols-4')} style={{paddingBottom:'env(safe-area-inset-bottom,0px)'}}>
+    <nav className={'md:hidden fixed bottom-0 inset-x-0 bg-ink text-slate-300 grid border-t border-white/10 '+(isMgr?'grid-cols-6':'grid-cols-4')} style={{paddingBottom:'env(safe-area-inset-bottom,0px)'}}>
       {tabs.map(([k,l,i])=>(<button key={k} onClick={()=>setTab(k)} className={'py-2.5 text-xs flex flex-col items-center gap-0.5 '+(tab===k?'text-brass font-semibold':'')}><span className="text-lg leading-none">{i}</span>{t(l)}</button>))}
     </nav>
     {police&&<Police s={s} onClose={()=>setPolice(false)}/>}
