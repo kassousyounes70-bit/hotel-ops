@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Hôtel Le Mirage</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1b26">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{serif:['Fraunces','Georgia','serif'],sans:['Instrument Sans','system-ui','sans-serif']},colors:{ink:'#0f1b26',deep:'#16283a',brass:'#c9a45c'}}}}
+</script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{font-family:'Instrument Sans',system-ui,sans-serif}
+html[lang=ar] body{font-family:'IBM Plex Sans Arabic','Instrument Sans',system-ui,sans-serif}
+html[lang=ar] .font-serif{font-family:'Amiri',Georgia,serif}
+input,select,textarea{font-size:16px}
+:focus-visible{outline:2px solid #c9a45c;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+html,body{background:#fff!important}
+#root>div>*:not(.police-wrap){display:none!important}
+#root>div{display:block!important;min-height:0!important}
+.police-wrap{position:static!important;overflow:visible!important;background:#fff!important;padding:0!important}
+.police-box{width:auto!important;height:auto!important}
+#police{transform:none!important;width:100%!important;min-height:0!important;padding:0!important;box-shadow:none!important}
+.no-print{display:none!important}
+:root{padding:0!important}
+tr{break-inside:avoid}
+#police table{page-break-after:avoid}
+}
+@page{size:A4 landscape;margin:12mm}
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 dark:bg-ink dark:text-slate-100 min-h-screen">
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useEffect,useContext,useRef,useMemo}=React;
+
+/* ===== CLIENT CONFIG — change this block to reskin for a new hotel ===== */
+const CONFIG={
+  id:'mirage-demo-v3',
+  lockMinutes:15,
+  hotelId:'mirage',
+  firebase:{
+    apiKey:"AIzaSyCtcAqmc9e1Ui-ksBg1S_r6DOqmc-NVcLI",
+    authDomain:"hotel-ops-e72cd.firebaseapp.com",
+    projectId:"hotel-ops-e72cd",
+    storageBucket:"hotel-ops-e72cd.firebasestorage.app",
+    messagingSenderId:"230621029982",
+    appId:"1:230621029982:web:2a79b55f2c638a5a3b36cf"
+  },
+  name:'Hôtel Le Mirage',
+  mark:'M',
+  currency:{en:'DA',fr:'DA',ar:'د.ج'},   /* Algerian dinar */
+  rate:8000,
+  floors:[1,2,3],
+  roomsPerFloor:6,
+  receptionist:'Sofia Benali',
+  shiftStart:'08:00',
+  startingDrawer:20000,
+  defaultLang:'ar',
+  docTypes:['National ID','Driver License','Passport','Family Book'],
+  services:['Breakfast Included','Parking Spot','Pool Pass','Wi-Fi'],
+  issues:['Room Quality Defect','Guest Complaint','Maintenance Needed','Early Checkout','Noise Disturbance'],
+};
+/* ===================================================================== */
+
+/* Translations: English text is the key. [French, Arabic] */
+const D={
+'Demo instance':['Version de démonstration','نسخة تجريبية'],
+'Overview':['Aperçu','نظرة عامة'],'Reception':['Réception','الاستقبال'],'Rooms':['Chambres','الغرف'],'Shift':['Service','الوردية'],'Incidents':['Incidents','الحوادث'],
+'Vacant & clean':['Libre et propre','شاغرة ونظيفة'],'Occupied':['Occupée','مشغولة'],'Vacant & dirty':['Libre et sale','شاغرة وتحتاج تنظيفاً'],'Out of service':['Hors service','خارج الخدمة'],
+'Live occupancy':["Taux d'occupation",'الإشغال الحالي'],'{0} of {1} rooms occupied':['{0} chambres occupées sur {1}','{0} من {1} غرفة مشغولة'],
+'Total':['Total','الإجمالي'],'Vacant':['Libres','الشاغرة'],'Maintenance':['Maintenance','الصيانة'],
+'On duty at reception':['En service à la réception','المناوب في الاستقبال'],'Shift started at {0}':['Service commencé à {0}','بدأت الوردية عند {0}'],
+'Last handover note:':['Dernière note de passation :','آخر ملاحظة تسليم:'],'No notes.':['Aucune note.','لا توجد ملاحظات.'],
+"Today's cash and card":["Espèces et carte aujourd'hui",'نقد وبطاقة اليوم'],'Cash':['Espèces','نقداً'],'Card':['Carte','بطاقة'],
+'Total collected this shift: {0}':['Total encaissé ce service : {0}','إجمالي المحصّل في هذه الوردية: {0}'],
+'Recent incidents':['Incidents récents','آخر الحوادث'],'No incidents logged. Use the Incidents tab to add one.':["Aucun incident. Utilisez l'onglet Incidents pour en ajouter.",'لا توجد حوادث مسجلة. استخدم تبويب الحوادث لإضافة حادثة.'],
+'Quick check-in':['Enregistrement rapide','تسجيل دخول سريع'],'Entry no.':["N° d'entrée",'رقم القيد'],'Document type':['Type de pièce','نوع الوثيقة'],'Document ID number':['N° de la pièce','رقم الوثيقة'],
+'Full name':['Nom complet','الاسم الكامل'],'Phone number':['Téléphone','رقم الهاتف'],'Room (clean and vacant only: {0})':['Chambre (libres et propres : {0})','الغرفة (النظيفة الشاغرة فقط: {0})'],
+'Select a room':['Choisir une chambre','اختر غرفة'],'Room {0} · Floor {1}':['Chambre {0} · Étage {1}','الغرفة {0} · الطابق {1}'],'Extra services':['Services supplémentaires','خدمات إضافية'],
+'Amount paid ({0})':['Montant payé ({0})','المبلغ المدفوع ({0})'],'Payment':['Paiement','الدفع'],'Check in guest':["Enregistrer l'arrivée",'تسجيل دخول النزيل'],
+'Active guests ({0})':['Clients présents ({0})','النزلاء الحاليون ({0})'],'Search by name or room number':['Rechercher par nom ou n° de chambre','ابحث بالاسم أو رقم الغرفة'],
+'No guests match your search.':['Aucun client ne correspond.','لا يوجد نزلاء مطابقون للبحث.'],
+'No.':['N°','الرقم'],'Guest':['Client','النزيل'],'Document':['Pièce','الوثيقة'],'Room':['Chambre','الغرفة'],'Services':['Services','الخدمات'],'In':['Arrivée','الدخول'],
+'Fill in name, document number and room.':['Renseignez le nom, le n° de pièce et la chambre.','أدخل الاسم ورقم الوثيقة والغرفة.'],
+'Guest checked in to room {0}.':['Client installé dans la chambre {0}.','تم تسجيل دخول النزيل إلى الغرفة {0}.'],
+'National ID':["Carte d'identité nationale",'بطاقة التعريف الوطنية'],'Driver License':['Permis de conduire','رخصة السياقة'],'Passport':['Passeport','جواز السفر'],'Family Book':['Livret de famille','دفتر الحالة العائلية'],
+'Breakfast Included':['Petit-déjeuner inclus','الفطور مشمول'],'Parking Spot':['Place de parking','موقف سيارة'],'Wi-Fi':['Wi-Fi','واي فاي'],
+'Check out and set to {0}':['Départ puis passer à : {0}','تسجيل الخروج ثم تحويل إلى: {0}'],'This room is no longer available.':["Cette chambre n'est plus disponible.",'هذه الغرفة لم تعد متاحة.'],
+'Floor {0}':['Étage {0}','الطابق {0}'],'Room {0}':['Chambre {0}','الغرفة {0}'],'Close':['Fermer','إغلاق'],'Check out guest':['Enregistrer le départ','تسجيل خروج النزيل'],
+'Set to {0}':['Passer à : {0}','تحويل إلى: {0}'],'Services: {0}':['Services : {0}','الخدمات: {0}'],'none':['aucun','لا شيء'],
+'Checked in at {0} · entry no. {1}':['Arrivée à {0} · entrée n° {1}','الدخول عند {0} · رقم القيد {1}'],
+'Room {0}: {1}.':['Chambre {0} : {1}.','الغرفة {0}: {1}.'],'Room {0} checked out. Marked for housekeeping.':['Départ de la chambre {0}. À nettoyer.','تم تسجيل خروج الغرفة {0}. وُسمت للتنظيف.'],
+'Cash drawer':['Caisse','صندوق النقد'],'Starting drawer cash':['Fond de caisse initial','رصيد الصندوق عند البداية'],'+ Cash collected':['+ Espèces encaissées','+ النقد المحصّل'],
+'− Petty expenses':['− Petites dépenses','− المصاريف الصغيرة'],'Expected cash':['Espèces attendues','النقد المتوقع'],'Petty expenses':['Petites dépenses','المصاريف الصغيرة'],
+'None this shift.':['Aucune ce service.','لا شيء في هذه الوردية.'],'Expense':['Dépense','المصروف'],'Amount':['Montant','المبلغ'],'Add':['Ajouter','إضافة'],
+'Close shift':['Clôturer le service','إغلاق الوردية'],'Actual cash handed over':['Espèces réellement remises','النقد الفعلي المسلَّم'],'The drawer balances.':['La caisse est équilibrée.','الصندوق متوازن.'],
+'Over by {0}':['Excédent de {0}','زيادة بمقدار {0}'],'Short by {0}':['Manque de {0}','نقص بمقدار {0}'],'Notes for the next receptionist':['Notes pour le réceptionniste suivant','ملاحظات للمستلم التالي'],
+'Close shift and hand over':['Clôturer et passer la main','إغلاق الوردية والتسليم'],'Enter the cash handed over.':['Saisissez les espèces remises.','أدخل النقد المسلَّم.'],
+'Shift closed. The next receptionist starts with {0}.':['Service clôturé. Le suivant démarre avec {0}.','أُغلقت الوردية. سيبدأ المستلم برصيد {0}.'],
+'Report an issue':['Signaler un problème','الإبلاغ عن مشكلة'],'Room or area':['Chambre ou zone','الغرفة أو المكان'],'Select':['Choisir','اختر'],'Issue type':['Type de problème','نوع المشكلة'],
+'Description':['Description','الوصف'],'Submit report':['Envoyer le signalement','إرسال البلاغ'],'Logged incidents ({0})':['Incidents enregistrés ({0})','الحوادث المسجلة ({0})'],
+'Nothing logged yet.':['Rien pour le moment.','لا شيء مسجل بعد.'],'By {0}':['Par {0}','بواسطة {0}'],
+'Lobby':['Hall','البهو'],'Restaurant':['Restaurant','المطعم'],'Parking':['Parking','موقف السيارات'],'Other area':['Autre zone','مكان آخر'],
+'Room Quality Defect':['Défaut de qualité de la chambre','عيب في جودة الغرفة'],'Guest Complaint':['Réclamation client','شكوى نزيل'],'Maintenance Needed':['Maintenance requise','صيانة مطلوبة'],'Early Checkout':['Départ anticipé','خروج مبكر'],
+'Choose a room or area and describe the issue.':['Choisissez une chambre ou zone et décrivez le problème.','اختر غرفة أو مكاناً واكتب وصف المشكلة.'],'Incident logged.':['Incident enregistré.','تم تسجيل الحادثة.'],
+'Reset demo':['Réinitialiser','إعادة ضبط العرض'],'Reset all demo data?':['Réinitialiser toutes les données de démo ?','إعادة ضبط كل بيانات العرض؟'],'Light':['Clair','فاتح'],'Dark':['Sombre','داكن'],
+'Air conditioning is noisy at night.':['La climatisation est bruyante la nuit.','المكيّف مزعج ليلاً.'],'Cleaning supplies':['Produits de nettoyage','مستلزمات التنظيف'],
+'Manager':['Gérant','المدير'],'Receptionist':['Réceptionniste','موظف الاستقبال'],
+'Live':['En direct','متصل'],'Offline':['Hors ligne','غير متصل'],'Offline — changes are saved on this device':['Hors ligne — modifications enregistrées sur cet appareil','غير متصل — تُحفظ التغييرات على هذا الجهاز'],
+'Lock':['Verrouiller','قفل'],'Unlock':['Déverrouiller','فتح القفل'],'Locked for privacy after {0} minutes of inactivity.':["Verrouillé par confidentialité après {0} minutes d'inactivité.",'تم القفل لحماية الخصوصية بعد {0} دقيقة من عدم النشاط.'],
+'{0} incident(s) need your attention':['{0} incident(s) nécessitent votre attention','{0} حادثة تحتاج إلى انتباهك'],'View':['Voir','عرض'],
+'Guests on premises':['Clients sur place','النزلاء داخل الفندق'],'Expected check-outs today':["Départs prévus aujourd'hui",'المغادرون المتوقعون اليوم'],'Since {0}':['Depuis {0}','منذ {0}'],'Nobody has started a shift.':["Personne n'a commencé son service.",'لم يبدأ أحد وردية بعد.'],
+'Police register':['Registre de police','سجل الشرطة'],'Generate Fiche de Police (A4)':['Générer la fiche de police (A4)','إنشاء تقرير الشرطة (A4)'],'Print or save as PDF':['Imprimer / enregistrer en PDF','طباعة / حفظ كـ PDF'],
+'Blacklist':['Liste noire','القائمة السوداء'],'Document number':['N° de pièce','رقم الوثيقة'],'Reason':['Motif','السبب'],'No blacklisted documents.':['Aucune pièce sur liste noire.','لا توجد وثائق في القائمة السوداء.'],'Remove':['Retirer','حذف'],
+'Previous damage to hotel property':["Dégradations antérieures des biens de l'hôtel",'أضرار سابقة بممتلكات الفندق'],
+'Date of birth':['Date de naissance','تاريخ الميلاد'],'Place of birth':['Lieu de naissance','مكان الميلاد'],'Nationality':['Nationalité','الجنسية'],'Address':['Adresse','العنوان'],'Vehicle plate (optional)':['Plaque du véhicule (facultatif)','لوحة السيارة (اختياري)'],
+'Expected check-out':['Départ prévu','تاريخ الخروج المتوقع'],'Out':['Départ','الخروج'],'Pool Pass':['Accès piscine','بطاقة المسبح'],'Algerian':['Algérien','جزائري'],'French':['Français','فرنسي'],
+'Guest currently checked in in Room {0}.':['Client actuellement enregistré dans la chambre {0}.','النزيل مسجَّل حالياً في الغرفة {0}.'],'Blacklisted: {0}':['Liste noire : {0}','مدرج في القائمة السوداء: {0}'],
+'This document is blacklisted. Check in anyway?':['Cette pièce est sur liste noire. Enregistrer quand même ?','هذه الوثيقة في القائمة السوداء. هل تريد التسجيل رغم ذلك؟'],
+'Swipe a room card sideways to move it forward: checked out, then cleaned.':['Faites glisser une carte de chambre : départ, puis nettoyée.','اسحب بطاقة الغرفة أفقياً لنقلها للحالة التالية: خروج ثم تنظيف.'],
+'Room {0} is clean and vacant. Use the room menu for other changes.':['Chambre {0} propre et libre. Utilisez le menu de la chambre pour autre chose.','الغرفة {0} شاغرة ونظيفة. استخدم قائمة الغرفة لتغييرات أخرى.'],
+'Attendance':['Présence','الحضور'],'Start shift':['Commencer le service','بدء الوردية'],'End shift':['Terminer le service','إنهاء الوردية'],'On shift since {0}':['En service depuis {0}','في الوردية منذ {0}'],'Not on shift':['Hors service','خارج الوردية'],'ongoing':['en cours','جارية'],
+'Only the device time is recorded — no location is tracked.':["Seule l'heure de l'appareil est enregistrée — aucune localisation.",'يُسجَّل توقيت الجهاز فقط — لا يتم تتبع أي موقع.'],
+'Noise Disturbance':['Nuisance sonore','إزعاج وضوضاء'],'Severity':['Gravité','درجة الخطورة'],'Low':['Faible','منخفضة'],'Medium':['Moyenne','متوسطة'],'Critical':['Critique','حرجة'],
+'Action taken':['Action entreprise','الإجراء المتخذ'],'Flag for manager attention':["Signaler à l'attention du gérant",'تنبيه المدير لهذه الحالة'],'Needs manager attention':["À l'attention du gérant",'تحتاج انتباه المدير'],
+'Mark resolved':['Marquer comme résolu','تأكيد المعالجة'],'Resolved':['Résolu','تمت المعالجة'],'Action: {0}':['Action : {0}','الإجراء: {0}'],
+'Water leak from the ceiling.':["Fuite d'eau au plafond.",'تسرّب مياه من السقف.'],'Guest moved to another room.':['Client transféré dans une autre chambre.','تم نقل النزيل إلى غرفة أخرى.'],
+'Sign in':['Se connecter','تسجيل الدخول'],'Email':['E-mail','البريد الإلكتروني'],'Password':['Mot de passe','كلمة المرور'],'Signing in…':['Connexion…','جارٍ تسجيل الدخول…'],'Sign out':['Déconnexion','تسجيل الخروج'],
+'Wrong email or password.':['E-mail ou mot de passe incorrect.','البريد الإلكتروني أو كلمة المرور غير صحيحة.'],'Network error. Check your connection.':['Erreur réseau. Vérifiez votre connexion.','خطأ في الشبكة. تحقق من اتصالك.'],
+'This account is not authorized for this hotel.':["Ce compte n'est pas autorisé pour cet hôtel.",'هذا الحساب غير مصرّح له بالدخول إلى هذا الفندق.'],'Loading…':['Chargement…','جارٍ التحميل…'],'Could not load Firebase. Check your internet connection and open the website address.':["Impossible de charger Firebase. Vérifiez votre connexion et ouvrez l'adresse du site.",'تعذّر تحميل Firebase. تحقق من اتصالك بالإنترنت وافتح التطبيق من عنوان الموقع.'],'This app must be opened from its website address (https), not as a local file.':["Cette application doit être ouverte depuis l'adresse du site (https), pas comme fichier local.",'يجب فتح هذا التطبيق من عنوان الموقع (https) وليس كملف محلي على الجهاز.'],
+'Hotel setup':["Configuration de l'hôtel",'إعداد الفندق'],'No rooms yet. Create the rooms to start.':['Aucune chambre. Créez les chambres pour commencer.','لا توجد غرف بعد. أنشئ الغرف للبدء.'],'Create {0} rooms':['Créer {0} chambres','إنشاء {0} غرفة'],
+'The manager has not set up the rooms yet.':["Le gérant n'a pas encore configuré les chambres.",'لم يُعدّ المدير الغرف بعد.'],'Could not save: {0}':["Échec de l'enregistrement : {0}",'تعذّر الحفظ: {0}'],'permission denied':['permission refusée','لا تملك الصلاحية'],
+};
+const Ctx=React.createContext(null);
+const useL=()=>useContext(Ctx);
+
+const STATUS={
+  vacant:{label:'Vacant & clean',dot:'bg-emerald-500',card:'border-emerald-500/60 bg-emerald-50 dark:bg-emerald-950/40'},
+  occupied:{label:'Occupied',dot:'bg-red-500',card:'border-red-500/60 bg-red-50 dark:bg-red-950/40'},
+  dirty:{label:'Vacant & dirty',dot:'bg-orange-500',card:'border-orange-500/60 bg-orange-50 dark:bg-orange-950/40'},
+  oos:{label:'Out of service',dot:'bg-slate-500',card:'border-slate-500/60 bg-slate-200 dark:bg-slate-800/60'},
+};
+const SEVC={low:'bg-slate-500/20 text-slate-700 dark:text-slate-300',medium:'bg-amber-500/25 text-amber-800 dark:text-amber-300',critical:'bg-red-500/25 text-red-700 dark:text-red-300'};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const hhmm=()=>new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+const ymd=(d=new Date())=>{const z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())};
+const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return ymd(d)};
+const lc=x=>String(x||'').trim().toLowerCase();
+const needsAttention=i=>!i.resolved&&(i.sev==='critical'||i.type==='Early Checkout'||i.flag);
+
+const ENV_ERR=typeof firebase==='undefined'?'sdk':((window.__mockFirebase||/^https?:$/.test(location.protocol))?'':'protocol');
+let auth,fs,FV;
+if(!ENV_ERR){firebase.initializeApp(CONFIG.firebase);auth=firebase.auth();fs=firebase.firestore();FV=firebase.firestore.FieldValue;try{fs.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}}
+const col=n=>fs.collection('hotels').doc(CONFIG.hotelId).collection(n);
+const DEFAULT_SETTINGS=()=>({payments:{cash:0,card:0},expenses:[],shift:{drawer:CONFIG.startingDrawer,start:hhmm()},handover:null,nextSeq:1});
+const EMPTY={rooms:[],guests:[],incidents:[],attendance:[],blacklist:[],settings:null,ready:{}};
+
+function useHotel(user,onError){
+  const [d,setD]=useState(EMPTY);
+  const er=useRef(onError);er.current=onError;
+  useEffect(()=>{
+    if(!user){setD(EMPTY);return}
+    const un=[];
+    const sub=(q,key,map)=>un.push(q.onSnapshot(sn=>setD(p=>({...p,[key]:sn.docs.map(map),ready:{...p.ready,[key]:true}})),e=>er.current(e)));
+    sub(col('rooms'),'rooms',x=>({...x.data(),id:Number(x.id)}));
+    sub(col('guests').where('active','==',true),'guests',x=>({...x.data(),id:x.id}));
+    sub(col('incidents'),'incidents',x=>({...x.data(),id:x.id}));
+    sub(col('attendance'),'attendance',x=>({...x.data(),id:x.id}));
+    sub(col('blacklist'),'blacklist',x=>({...x.data(),id:x.id}));
+    un.push(col('settings').doc('current').onSnapshot(sn=>setD(p=>({...p,settings:sn.exists?sn.data():null,ready:{...p.ready,settings:true}})),e=>er.current(e)));
+    return()=>un.forEach(f=>f());
+  },[user&&user.uid]);
+  const A=useMemo(()=>{
+    if(!user)return null;
+    const w=f=>(...a)=>{try{const r=f(...a);if(r&&r.catch)r.catch(e=>er.current(e));return r}catch(e){er.current(e)}};
+    const S=()=>col('settings').doc('current');
+    return{
+      checkIn:w((g,method,amount,next)=>{const b=fs.batch();
+        b.set(col('guests').doc(uid()),{...g,active:true,ts:Date.now(),by:user.name});
+        b.update(col('rooms').doc(String(g.room)),{status:'occupied'});
+        b.set(S(),{payments:{[method]:FV.increment(amount)},nextSeq:next},{merge:true});return b.commit()}),
+      setRoom:w((id,status,guests)=>{const b=fs.batch();
+        b.update(col('rooms').doc(String(id)),{status});
+        guests.filter(g=>g.room===id).forEach(g=>b.update(col('guests').doc(g.id),{active:false,outAt:Date.now()}));return b.commit()}),
+      addBlack:w((docId,reason)=>col('blacklist').doc(uid()).set({docId,reason,ts:Date.now()})),
+      rmBlack:w(id=>col('blacklist').doc(id).delete()),
+      startShift:w(()=>col('attendance').doc(uid()).set({uid:user.uid,name:user.name,date:ymd(),start:hhmm(),end:null,ts:Date.now()})),
+      endShift:w(id=>col('attendance').doc(id).update({end:hhmm()})),
+      addExpense:w((label,amount)=>S().set({expenses:FV.arrayUnion({id:uid(),label,amount})},{merge:true})),
+      closeShift:w((handover,actual)=>S().set({handover,payments:{cash:0,card:0},expenses:[],shift:{drawer:actual,start:hhmm()}},{merge:true})),
+      addIncident:w(o=>col('incidents').doc(uid()).set({...o,resolved:false,time:hhmm(),by:user.name,ts:Date.now()})),
+      resolveIncident:w(id=>col('incidents').doc(id).update({resolved:true})),
+      initRooms:w(()=>{const b=fs.batch();
+        CONFIG.floors.forEach(f=>{for(let n=1;n<=CONFIG.roomsPerFloor;n++)b.set(col('rooms').doc(String(f*100+n)),{floor:f,status:'vacant'})});
+        b.set(S(),DEFAULT_SETTINGS(),{merge:true});return b.commit()}),
+    };
+  },[user&&user.uid]);
+  const st=d.settings||{};
+  const s={
+    rooms:[...d.rooms].sort((a,b)=>a.id-b.id),
+    guests:[...d.guests].sort((a,b)=>(b.ts||0)-(a.ts||0)),
+    incidents:[...d.incidents].sort((a,b)=>(b.ts||0)-(a.ts||0)),
+    attendance:[...d.attendance].sort((a,b)=>(b.ts||0)-(a.ts||0)),
+    blacklist:d.blacklist,
+    payments:{cash:(st.payments&&st.payments.cash)||0,card:(st.payments&&st.payments.card)||0},
+    expenses:st.expenses||[],
+    shift:st.shift||{drawer:CONFIG.startingDrawer,start:CONFIG.shiftStart},
+    handover:st.handover||null,
+    nextSeq:st.nextSeq||1,
+  };
+  return{s,ready:d.ready,A};
+}
+
+const inp="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-deep px-3 py-2.5";
+const btn="rounded-lg px-4 py-2.5 font-medium bg-brass text-ink hover:brightness-110 active:brightness-95";
+const btn2="rounded-lg px-4 py-2.5 font-medium border border-slate-300 dark:border-slate-600 hover:bg-slate-200/60 dark:hover:bg-slate-700/40";
+const Card=({title,children,className=''})=>(
+  <section className={'rounded-xl bg-white dark:bg-deep border border-slate-200 dark:border-slate-700/60 p-4 '+className}>
+    {title&&<h2 className="font-serif text-lg mb-3">{title}</h2>}{children}
+  </section>);
+const Field=({label,children})=>(<label className="block"><span className="text-sm text-slate-500 dark:text-slate-400">{label}</span><div className="mt-1">{children}</div></label>);
+const Sev=({v})=>{const {t}=useL();return <span className={'rounded-full px-2 py-0.5 text-xs font-medium '+SEVC[v||'low']}>{t(v==='critical'?'Critical':v==='medium'?'Medium':'Low')}</span>};
+
+function Police({s,onClose}){
+  const {tf}=useL();
+  const ref=useRef(null);
+  const [sc,setSc]=useState(1);const [h,setH]=useState(0);
+  const now=new Date();const list=[...s.guests].sort((a,b)=>a.seq-b.seq);
+  const fd=d=>d?d.split('-').reverse().join('/'):'—';
+  useEffect(()=>{const f=()=>{const k=Math.min(1,(window.innerWidth-24)/1123);setSc(k);if(ref.current)setH(ref.current.offsetHeight*k)};f();window.addEventListener('resize',f);return()=>window.removeEventListener('resize',f)},[list.length]);
+  const th="border border-black px-1 py-1 text-left font-semibold break-words";const td="border border-black px-1 py-1 align-top break-words";
+  const cols=[4,16,13,9,16,17,7,9,9];
+  return(<div dir="ltr" className="police-wrap fixed inset-0 z-50 overflow-auto bg-slate-400 p-3">
+    <div className="no-print mx-auto mb-3 flex gap-2 justify-end" dir="ltr" style={{maxWidth:Math.max(300,1123*sc)}}>
+      <button className={btn} onClick={()=>{try{window.print()}catch(e){}}}>{tf('Print or save as PDF')}</button>
+      <button className="rounded-lg px-4 py-2.5 font-medium bg-white text-ink" onClick={onClose}>{tf('Close')}</button>
+    </div>
+    <div className="police-box mx-auto" style={{width:1123*sc,height:h||undefined}}>
+      <div id="police" ref={ref} dir="ltr" className="bg-white text-black shadow-xl" style={{width:'297mm',minHeight:'210mm',boxSizing:'border-box',padding:'10mm',fontFamily:'Georgia,serif',fontSize:'11px',transformOrigin:'top left',transform:'scale('+sc+')'}}>
+        <div className="flex justify-between items-end border-b-2 border-black pb-2 mb-3">
+          <div><div style={{fontSize:'22px',fontWeight:700}}>{CONFIG.name}</div><div>Fiche de Police — Registre des voyageurs</div></div>
+          <div style={{textAlign:'right'}}>Édité le {now.toLocaleDateString('fr-FR')} à {hhmm()}<br/>Clients présents : {list.length}</div>
+        </div>
+        <table style={{width:'100%',tableLayout:'fixed',borderCollapse:'collapse',fontSize:'11px'}}>
+          <colgroup>{cols.map((w,i)=><col key={i} style={{width:w+'%'}}/>)}</colgroup>
+          <thead><tr>{['N°','Nom et prénom','Naissance (date, lieu)','Nationalité',"Pièce d'identité",'Adresse','Chambre','Arrivée','Départ prévu'].map(x=><th key={x} className={th}>{x}</th>)}</tr></thead>
+          <tbody>{list.map(g=>(<tr key={g.id}><td className={td}>{g.seq}</td><td className={td}>{g.name}</td><td className={td}>{fd(g.dob)}<br/>{g.pob||''}</td><td className={td}>{tf(g.nat||'')||'—'}</td><td className={td}>{tf(g.docType)}<br/>{g.docId}</td><td className={td}>{g.address||'—'}</td><td className={td+' font-bold'}>{g.room}</td><td className={td}>{fd(g.inDate)}<br/>{g.time}</td><td className={td}>{fd(g.outDate)}</td></tr>))}</tbody>
+        </table>
+        {list.length===0&&<p style={{marginTop:'12px'}}>Aucun client présent.</p>}
+        <div className="flex justify-between" style={{marginTop:'24px',breakInside:'avoid',pageBreakInside:'avoid'}}><div>Le réceptionniste : ______________</div><div>Cachet et signature de la direction : ______________</div></div>
+      </div></div></div>);
+}
+
+function Dashboard({s,openPolice}){
+  const {t,money,A}=useL();
+  const total=s.rooms.length,occ=s.rooms.filter(r=>r.status==='occupied').length;
+  const vac=s.rooms.filter(r=>r.status==='vacant'||r.status==='dirty').length;
+  const mnt=s.rooms.filter(r=>r.status==='oos').length;
+  const pct=total?Math.round(occ/total*100):0;
+  const cash=s.payments.cash,card=s.payments.card,sum=cash+card||1;
+  const outToday=s.guests.filter(g=>g.outDate===ymd()).length;
+  const open=s.attendance.filter(a=>!a.end);
+  const [bd,setBd]=useState('');const [br,setBr]=useState('');
+  const addB=()=>{if(!bd.trim())return;A.addBlack(bd.trim(),br.trim());setBd('');setBr('')};
+  const rmB=id=>A.rmBlack(id);
+  return(<div className="grid gap-4 lg:grid-cols-2">
+    <Card title={t('Live occupancy')}>
+      <div className="flex items-end gap-3"><div className="font-serif text-5xl">{pct}%</div><div className="text-slate-500 dark:text-slate-400 pb-1">{t('{0} of {1} rooms occupied',occ,total)}</div></div>
+      <div className="mt-3 h-2.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden"><div className="h-full bg-red-500" style={{width:pct+'%'}}></div></div>
+      <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+        {[['Total',total],['Vacant',vac],['Maintenance',mnt]].map(([l,v])=>(<div key={l} className="rounded-lg bg-slate-100 dark:bg-ink/60 py-2"><div className="text-2xl font-semibold">{v}</div><div className="text-xs text-slate-500 dark:text-slate-400">{t(l)}</div></div>))}
+      </div>
+      <div className="mt-2 grid grid-cols-2 gap-2 text-center">
+        {[['Guests on premises',s.guests.length],['Expected check-outs today',outToday]].map(([l,v])=>(<div key={l} className="rounded-lg bg-slate-100 dark:bg-ink/60 py-2 px-1"><div className="text-2xl font-semibold">{v}</div><div className="text-xs text-slate-500 dark:text-slate-400">{t(l)}</div></div>))}
+      </div>
+    </Card>
+    <Card title={t('On duty at reception')}>
+      {open.length===0&&<p className="text-slate-500">{t('Nobody has started a shift.')}</p>}
+      {open.map(a=>(<div key={a.id} className="flex items-center gap-3 mb-2"><span className="h-3 w-3 rounded-full bg-emerald-500"></span><div><div className="text-lg font-medium">{a.name}</div><div className="text-sm text-slate-500 dark:text-slate-400">{t('Since {0}',a.start)}</div></div></div>))}
+      {s.handover&&<p className="mt-3 text-sm rounded-lg bg-slate-100 dark:bg-ink/60 p-3"><b>{t('Last handover note:')}</b> {s.handover.notes||t('No notes.')}</p>}
+    </Card>
+    <Card title={t("Today's cash and card")}>
+      <div className="flex justify-between text-lg"><span>{t('Cash')} <b>{money(cash)}</b></span><span>{t('Card')} <b>{money(card)}</b></span></div>
+      <div className="mt-3 flex h-2.5 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700"><div className="bg-brass" style={{width:cash/sum*100+'%'}}></div><div className="bg-sky-400" style={{width:card/sum*100+'%'}}></div></div>
+      <div className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('Total collected this shift: {0}',money(cash+card))}</div>
+    </Card>
+    <Card title={t('Police register')}>
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">{t('Guests on premises')}: {s.guests.length}</p>
+      <button className={btn+' w-full'} onClick={openPolice}>{t('Generate Fiche de Police (A4)')}</button>
+    </Card>
+    <Card title={t('Recent incidents')}>
+      {s.incidents.length===0&&<p className="text-slate-500">{t('No incidents logged. Use the Incidents tab to add one.')}</p>}
+      <ul className="space-y-2">{s.incidents.slice(0,5).map(i=>(<li key={i.id} className={'rounded-lg bg-slate-100 dark:bg-ink/60 p-3 text-sm '+(i.resolved?'opacity-60':'')}><div className="flex justify-between gap-2"><b>{t(i.type)} · {t(i.room)}</b><span className="text-slate-500">{i.time}</span></div><div className="mt-1 flex flex-wrap gap-1 items-center"><Sev v={i.sev}/>{i.flag&&<span className="rounded-full px-2 py-0.5 text-xs bg-brass/30">{t('Needs manager attention')}</span>}{i.resolved&&<span className="text-xs text-emerald-600 dark:text-emerald-400">{t('Resolved')}</span>}</div><div className="mt-1">{t(i.note)}</div></li>))}</ul>
+    </Card>
+    <Card title={t('Blacklist')}>
+      <ul className="text-sm mb-3 space-y-1">{s.blacklist.map(b=>(<li key={b.id} className="flex justify-between gap-2 items-start rounded-lg bg-slate-100 dark:bg-ink/60 p-2"><span><b>{b.docId}</b>{b.reason&&<span className="text-slate-500"> · {t(b.reason)}</span>}</span><button className="text-red-500 text-xs shrink-0" onClick={()=>rmB(b.id)}>{t('Remove')}</button></li>))}{s.blacklist.length===0&&<li className="text-slate-500">{t('No blacklisted documents.')}</li>}</ul>
+      <div className="flex gap-2"><input className={inp} placeholder={t('Document number')} value={bd} onChange={e=>setBd(e.target.value)}/><input className={inp} placeholder={t('Reason')} value={br} onChange={e=>setBr(e.target.value)}/><button className={btn2} onClick={addB}>{t('Add')}</button></div>
+    </Card>
+  </div>);
+}
+
+function ReceptionTab({s,toast}){
+  const {t,cur,A}=useL();
+  const free=s.rooms.filter(r=>r.status==='vacant');
+  const blank={docType:CONFIG.docTypes[0],docId:'',name:'',dob:'',pob:'',nat:'',address:'',phone:'',plate:'',room:'',services:[],seq:s.nextSeq,outDate:addDays(1),amount:CONFIG.rate,method:'cash'};
+  const [f,setF]=useState(blank);const [q,setQ]=useState('');
+  useEffect(()=>{setF(x=>({...x,seq:s.nextSeq}))},[s.nextSeq]);
+  const set=(k,v)=>setF(x=>({...x,[k]:v}));
+  const tog=v=>set('services',f.services.includes(v)?f.services.filter(x=>x!==v):[...f.services,v]);
+  const dupe=f.docId.trim()&&s.guests.find(g=>lc(g.docId)===lc(f.docId));
+  const black=f.docId.trim()&&s.blacklist.find(b=>lc(b.docId)===lc(f.docId));
+  const submit=e=>{e.preventDefault();
+    if(!f.name||!f.docId||!f.room){toast(t('Fill in name, document number and room.'));return}
+    if(dupe){toast(t('Guest currently checked in in Room {0}.',dupe.room));return}
+    if(black&&!confirm(t('This document is blacklisted. Check in anyway?')))return;
+    const room=Number(f.room);
+    const rm=s.rooms.find(x=>x.id===room);
+    if(!rm||rm.status!=='vacant'){toast(t('This room is no longer available.'));set('room','');return}
+    A.checkIn({seq:Number(f.seq),docType:f.docType,docId:f.docId.trim(),name:f.name,dob:f.dob,pob:f.pob,nat:f.nat,address:f.address,phone:f.phone,plate:f.plate,room,services:f.services,time:hhmm(),inDate:ymd(),outDate:f.outDate},f.method,Number(f.amount||0),Number(f.seq)+1);
+    setF({...blank,seq:Number(f.seq)+1});toast(t('Guest checked in to room {0}.',room));};
+  const list=s.guests.filter(g=>(g.name+g.room).toLowerCase().includes(q.toLowerCase()));
+  const sv=g=>g.services.map(t).join(', ');
+  return(<div className="grid gap-4 lg:grid-cols-5">
+    <Card title={t('Quick check-in')} className="lg:col-span-2 self-start">
+      <form onSubmit={submit} className="space-y-3">
+        <div className="grid grid-cols-3 gap-3">
+          <Field label={t('Entry no.')}><input type="number" className={inp} value={f.seq} onChange={e=>set('seq',e.target.value)}/></Field>
+          <div className="col-span-2"><Field label={t('Document type')}><select className={inp} value={f.docType} onChange={e=>set('docType',e.target.value)}>{CONFIG.docTypes.map(d=><option key={d} value={d}>{t(d)}</option>)}</select></Field></div>
+        </div>
+        <Field label={t('Document ID number')}><input className={inp} value={f.docId} onChange={e=>set('docId',e.target.value)}/></Field>
+        {dupe&&<div role="alert" className="rounded-lg p-3 text-sm bg-amber-500/20 text-amber-800 dark:text-amber-300">{t('Guest currently checked in in Room {0}.',dupe.room)}</div>}
+        {black&&<div role="alert" className="rounded-lg p-3 text-sm bg-red-500/20 text-red-700 dark:text-red-300">⚠ {t('Blacklisted: {0}',black.reason?t(black.reason):black.docId)}</div>}
+        <Field label={t('Full name')}><input className={inp} value={f.name} onChange={e=>set('name',e.target.value)} autoComplete="off"/></Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={t('Date of birth')}><input type="date" className={inp} value={f.dob} onChange={e=>set('dob',e.target.value)}/></Field>
+          <Field label={t('Place of birth')}><input className={inp} value={f.pob} onChange={e=>set('pob',e.target.value)}/></Field>
+          <Field label={t('Nationality')}><input className={inp} value={f.nat} onChange={e=>set('nat',e.target.value)}/></Field>
+          <Field label={t('Phone number')}><input type="tel" dir="ltr" className={inp+' text-start'} value={f.phone} onChange={e=>set('phone',e.target.value)}/></Field>
+        </div>
+        <Field label={t('Address')}><input className={inp} value={f.address} onChange={e=>set('address',e.target.value)}/></Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={t('Vehicle plate (optional)')}><input dir="ltr" className={inp+' text-start'} value={f.plate} onChange={e=>set('plate',e.target.value)}/></Field>
+          <Field label={t('Expected check-out')}><input type="date" min={ymd()} className={inp} value={f.outDate} onChange={e=>set('outDate',e.target.value)}/></Field>
+        </div>
+        <Field label={t('Room (clean and vacant only: {0})',free.length)}><select className={inp} value={f.room} onChange={e=>set('room',e.target.value)}><option value="">{t('Select a room')}</option>{free.map(r=><option key={r.id} value={r.id}>{t('Room {0} · Floor {1}',r.id,r.floor)}</option>)}</select></Field>
+        <fieldset><legend className="text-sm text-slate-500 dark:text-slate-400">{t('Extra services')}</legend>
+          <div className="mt-1 flex flex-wrap gap-2">{CONFIG.services.map(v=>(<label key={v} className={'cursor-pointer rounded-lg border px-3 py-2 text-sm '+(f.services.includes(v)?'border-brass bg-brass/15':'border-slate-300 dark:border-slate-600')}><input type="checkbox" className="me-2 accent-amber-600" checked={f.services.includes(v)} onChange={()=>tog(v)}/>{t(v)}</label>))}</div></fieldset>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={t('Amount paid ({0})',cur)}><input type="number" className={inp} value={f.amount} onChange={e=>set('amount',e.target.value)}/></Field>
+          <Field label={t('Payment')}><select className={inp} value={f.method} onChange={e=>set('method',e.target.value)}><option value="cash">{t('Cash')}</option><option value="card">{t('Card')}</option></select></Field>
+        </div>
+        <button className={btn+' w-full'}>{t('Check in guest')}</button>
+      </form>
+    </Card>
+    <Card title={t('Active guests ({0})',s.guests.length)} className="lg:col-span-3">
+      <input className={inp+' mb-3'} placeholder={t('Search by name or room number')} value={q} onChange={e=>setQ(e.target.value)}/>
+      {list.length===0&&<p className="text-slate-500">{t('No guests match your search.')}</p>}
+      <div className="hidden md:block overflow-x-auto"><table className="w-full text-sm text-start">
+        <thead className="text-slate-500 dark:text-slate-400"><tr>{['No.','Guest','Document','Room','Services','Out'].map(h=><th key={h} className="py-2 pe-3 font-medium text-start">{t(h)}</th>)}</tr></thead>
+        <tbody>{list.map(g=>(<tr key={g.id} className="border-t border-slate-200 dark:border-slate-700/60"><td className="py-2 pe-3">{g.seq}</td><td className="pe-3"><div className="font-medium">{g.name}</div><div className="text-slate-500" dir="ltr">{g.phone}</div></td><td className="pe-3">{t(g.docType)}<div className="text-slate-500">{g.docId}</div></td><td className="pe-3 font-semibold">{g.room}</td><td className="pe-3">{sv(g)||'—'}</td><td>{g.outDate||'—'}</td></tr>))}</tbody>
+      </table></div>
+      <div className="md:hidden space-y-2">{list.map(g=>(<div key={g.id} className="rounded-lg bg-slate-100 dark:bg-ink/60 p-3 text-sm"><div className="flex justify-between"><b>{g.name}</b><b>{t('Room {0}',g.room)}</b></div><div className="text-slate-500">#{g.seq} · {t(g.docType)} {g.docId}</div><div className="text-slate-500"><span dir="ltr">{g.phone}</span> · {t('Out')}: {g.outDate||'—'}</div>{g.services.length>0&&<div>{sv(g)}</div>}</div>))}</div>
+    </Card>
+  </div>);
+}
+
+function RoomsTab({s,toast}){
+  const {t,A}=useL();
+  const [sel,setSel]=useState(null);
+  const sw=useRef(null),swiped=useRef(false);
+  const room=s.rooms.find(r=>r.id===sel);
+  const guest=room&&s.guests.find(g=>g.room===room.id);
+  const setRoom=(id,st)=>A.setRoom(id,st,s.guests);
+  const change=(st)=>{setRoom(sel,st);toast(t('Room {0}: {1}.',sel,t(STATUS[st].label)));setSel(null)};
+  const checkout=()=>{setRoom(sel,'dirty');toast(t('Room {0} checked out. Marked for housekeeping.',sel));setSel(null)};
+  const advance=r=>{
+    if(r.status==='occupied'){setRoom(r.id,'dirty');toast(t('Room {0} checked out. Marked for housekeeping.',r.id))}
+    else if(r.status==='dirty'){setRoom(r.id,'vacant');toast(t('Room {0}: {1}.',r.id,t(STATUS.vacant.label)))}
+    else if(r.status==='oos'){setRoom(r.id,'dirty');toast(t('Room {0}: {1}.',r.id,t(STATUS.dirty.label)))}
+    else toast(t('Room {0} is clean and vacant. Use the room menu for other changes.',r.id));
+  };
+  const down=(e,r)=>{sw.current={x:e.clientX,y:e.clientY,id:r.id}};
+  const up=(e,r)=>{const a=sw.current;sw.current=null;if(!a||a.id!==r.id)return;const dx=e.clientX-a.x,dy=Math.abs(e.clientY-a.y);if(Math.abs(dx)>60&&dy<40){swiped.current=true;advance(r)}};
+  const click=r=>{if(swiped.current){swiped.current=false;return}setSel(r.id)};
+  return(<div>
+    <div className="flex flex-wrap gap-4 mb-2 text-sm">{Object.entries(STATUS).map(([k,v])=>(<span key={k} className="flex items-center gap-2"><span className={'h-3 w-3 rounded-full '+v.dot}></span>{t(v.label)}</span>))}</div>
+    <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">{t('Swipe a room card sideways to move it forward: checked out, then cleaned.')}</p>
+    {CONFIG.floors.map(f=>(<div key={f} className="mb-5"><h2 className="sticky top-0 z-10 py-1 bg-slate-100 dark:bg-ink font-serif text-lg mb-2">{t('Floor {0}',f)}</h2>
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">{s.rooms.filter(r=>r.floor===f).map(r=>{const g=s.guests.find(x=>x.room===r.id);return(
+        <button key={r.id} style={{touchAction:'pan-y'}} onPointerDown={e=>down(e,r)} onPointerUp={e=>up(e,r)} onClick={()=>click(r)} className={'rounded-xl border-2 p-3 text-start min-h-[84px] select-none '+STATUS[r.status].card}>
+          <div className="text-xl font-semibold">{r.id}</div>
+          <div className="text-xs mt-1 truncate text-slate-600 dark:text-slate-300">{g?g.name:t(STATUS[r.status].label)}</div>
+        </button>)})}</div></div>))}
+    {room&&(<div className="fixed inset-0 z-40 bg-black/60 flex items-end sm:items-center justify-center p-3" onClick={()=>setSel(null)}>
+      <div className="w-full max-w-md rounded-2xl bg-white dark:bg-deep p-5 max-h-[90vh] overflow-auto" onClick={e=>e.stopPropagation()}>
+        <div className="flex justify-between items-start"><div><h3 className="font-serif text-2xl">{t('Room {0}',room.id)}</h3><div className="flex items-center gap-2 text-sm mt-1"><span className={'h-3 w-3 rounded-full '+STATUS[room.status].dot}></span>{t(STATUS[room.status].label)}</div></div><button className="text-2xl leading-none px-2" aria-label={t('Close')} onClick={()=>setSel(null)}>×</button></div>
+        {guest&&(<div className="mt-4 rounded-lg bg-slate-100 dark:bg-ink/60 p-3 text-sm space-y-1"><div className="font-semibold text-base">{guest.name}</div><div dir="ltr" className="text-start">{guest.phone}</div><div>{t(guest.docType)}: {guest.docId}</div>
+          {(guest.dob||guest.pob)&&<div>{t('Date of birth')}: {guest.dob||'—'} · {guest.pob||'—'}</div>}{guest.nat&&<div>{t('Nationality')}: {t(guest.nat)}</div>}{guest.address&&<div>{t('Address')}: {guest.address}</div>}{guest.plate&&<div>{t('Vehicle plate (optional)')}: <span dir="ltr">{guest.plate}</span></div>}
+          <div>{t('Services: {0}',guest.services.map(t).join(', ')||t('none'))}</div><div>{t('Checked in at {0} · entry no. {1}',guest.time,guest.seq)}</div>{guest.outDate&&<div>{t('Expected check-out')}: {guest.outDate}</div>}</div>)}
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          {room.status==='occupied'&&<button className={btn+' col-span-2'} onClick={checkout}>{t('Check out guest')}</button>}
+          {Object.entries(STATUS).filter(([k])=>k!==room.status&&k!=='occupied').map(([k,v])=>(<button key={k} className={btn2} onClick={()=>change(k)}>{room.status==='occupied'?t('Check out and set to {0}',t(v.label)):t('Set to {0}',t(v.label))}</button>))}
+        </div>
+      </div></div>)}
+  </div>);
+}
+
+function ShiftTab({s,toast}){
+  const {t,money,A,user}=useL();
+  const cash=s.payments.cash,exp=s.expenses.reduce((a,b)=>a+b.amount,0);
+  const expected=s.shift.drawer+cash-exp;
+  const [actual,setActual]=useState('');const [notes,setNotes]=useState('');
+  const [el,setEl]=useState('');const [ea,setEa]=useState('');
+  const diff=actual===''?null:Number(actual)-expected;
+  const open=s.attendance.find(a=>!a.end&&a.uid===user.uid);
+  const startS=()=>{if(open)return;const h=hhmm();A.startShift();toast(t('Shift started at {0}',h))};
+  const endS=()=>{if(!open)return;A.endShift(open.id);toast(t('Not on shift'))};
+  const addExp=()=>{if(!el||!ea)return;A.addExpense(el,Number(ea));setEl('');setEa('')};
+  const close=e=>{e.preventDefault();if(actual===''){toast(t('Enter the cash handed over.'));return}
+    A.closeShift({notes,actual:Number(actual),expected,by:user.name,time:hhmm()},Number(actual));
+    setActual('');setNotes('');toast(t('Shift closed. The next receptionist starts with {0}.',money(actual)))};
+  const row=(l,v,b)=>(<div className={'flex justify-between py-1.5 '+(b?'font-semibold border-t border-slate-300 dark:border-slate-600 mt-1 pt-2':'')}><span>{l}</span><span>{v}</span></div>);
+  return(<div className="grid gap-4 lg:grid-cols-2">
+    <Card title={t('Attendance')} className="lg:col-span-2">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className={'h-3 w-3 rounded-full '+(open?'bg-emerald-500':'bg-slate-400')}></span>
+        <span className="font-medium">{user.name}</span>
+        <span className="text-slate-500 dark:text-slate-400 text-sm">{open?t('On shift since {0}',open.start):t('Not on shift')}</span>
+        <div className="ms-auto flex gap-2">{open?<button className={btn2} onClick={endS}>{t('End shift')}</button>:<button className={btn} onClick={startS}>{t('Start shift')}</button>}</div>
+      </div>
+      <ul className="mt-3 text-sm space-y-1">{s.attendance.slice(0,6).map(a=>(<li key={a.id} className="flex justify-between rounded-lg bg-slate-100 dark:bg-ink/60 px-3 py-2"><span>{a.name} · {a.date}</span><span dir="ltr">{a.start} → {a.end||t('ongoing')}</span></li>))}</ul>
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{t('Only the device time is recorded — no location is tracked.')}</p>
+    </Card>
+    <Card title={t('Cash drawer')}>
+      {row(t('Starting drawer cash'),money(s.shift.drawer))}{row(t('+ Cash collected'),money(cash))}{row(t('− Petty expenses'),money(exp))}{row(t('Expected cash'),money(expected),true)}
+      <div className="mt-4 text-sm text-slate-500 dark:text-slate-400">{t('Petty expenses')}</div>
+      <ul className="text-sm mt-1">{s.expenses.map(x=>(<li key={x.id} className="flex justify-between py-1"><span>{t(x.label)}</span><span>{money(x.amount)}</span></li>))}{s.expenses.length===0&&<li className="text-slate-500">{t('None this shift.')}</li>}</ul>
+      <div className="mt-2 flex gap-2"><input className={inp} placeholder={t('Expense')} value={el} onChange={e=>setEl(e.target.value)}/><input type="number" className={inp+' !w-28'} placeholder={t('Amount')} value={ea} onChange={e=>setEa(e.target.value)}/><button type="button" className={btn2} onClick={addExp}>{t('Add')}</button></div>
+    </Card>
+    <Card title={t('Close shift')} className="self-start">
+      <form onSubmit={close} className="space-y-3">
+        <Field label={t('Actual cash handed over')}><input type="number" className={inp} value={actual} onChange={e=>setActual(e.target.value)}/></Field>
+        {diff!==null&&<div className={'rounded-lg p-3 text-sm '+(Math.abs(diff)<0.5?'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300':'bg-red-500/15 text-red-700 dark:text-red-300')}>{Math.abs(diff)<0.5?t('The drawer balances.'):t(diff>0?'Over by {0}':'Short by {0}',money(Math.abs(diff)))}</div>}
+        <Field label={t('Notes for the next receptionist')}><textarea rows="4" className={inp} value={notes} onChange={e=>setNotes(e.target.value)}></textarea></Field>
+        <button className={btn+' w-full'}>{t('Close shift and hand over')}</button>
+      </form>
+    </Card>
+  </div>);
+}
+
+function IncidentsTab({s,toast}){
+  const {t,isMgr,A}=useL();
+  const blank={room:'',type:CONFIG.issues[0],sev:'medium',note:'',action:'',flag:false};
+  const [f,setF]=useState(blank);
+  const set=(k,v)=>setF(x=>({...x,[k]:v}));
+  const areas=[...s.rooms.map(r=>String(r.id)),'Lobby','Restaurant','Parking','Other area'];
+  const submit=e=>{e.preventDefault();if(!f.room||!f.note.trim()){toast(t('Choose a room or area and describe the issue.'));return}
+    A.addIncident({room:f.room,type:f.type,sev:f.sev,note:f.note.trim(),action:f.action.trim(),flag:f.flag});
+    setF(blank);toast(t('Incident logged.'))};
+  const resolve=id=>A.resolveIncident(id);
+  return(<div className="grid gap-4 lg:grid-cols-2">
+    <Card title={t('Report an issue')} className="self-start"><form onSubmit={submit} className="space-y-3">
+      <Field label={t('Room or area')}><select className={inp} value={f.room} onChange={e=>set('room',e.target.value)}><option value="">{t('Select')}</option>{areas.map(a=><option key={a} value={a}>{t(a)}</option>)}</select></Field>
+      <Field label={t('Issue type')}><select className={inp} value={f.type} onChange={e=>set('type',e.target.value)}>{CONFIG.issues.map(a=><option key={a} value={a}>{t(a)}</option>)}</select></Field>
+      <fieldset><legend className="text-sm text-slate-500 dark:text-slate-400">{t('Severity')}</legend>
+        <div className="mt-1 grid grid-cols-3 gap-2">{['low','medium','critical'].map(v=>(<button type="button" key={v} onClick={()=>set('sev',v)} className={'rounded-lg border px-3 py-2 text-sm '+(f.sev===v?'border-brass bg-brass/20 font-semibold':'border-slate-300 dark:border-slate-600')}>{t(v==='critical'?'Critical':v==='medium'?'Medium':'Low')}</button>))}</div></fieldset>
+      <Field label={t('Description')}><textarea rows="3" className={inp} value={f.note} onChange={e=>set('note',e.target.value)}></textarea></Field>
+      <Field label={t('Action taken')}><textarea rows="2" className={inp} value={f.action} onChange={e=>set('action',e.target.value)}></textarea></Field>
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="accent-amber-600 h-4 w-4" checked={f.flag} onChange={e=>set('flag',e.target.checked)}/>{t('Flag for manager attention')}</label>
+      <button className={btn+' w-full'}>{t('Submit report')}</button></form></Card>
+    <Card title={t('Logged incidents ({0})',s.incidents.length)}>
+      {s.incidents.length===0&&<p className="text-slate-500">{t('Nothing logged yet.')}</p>}
+      <ul className="space-y-2">{s.incidents.map(i=>(<li key={i.id} className={'rounded-lg p-3 text-sm '+(needsAttention(i)?'bg-red-500/10 border border-red-500/40':'bg-slate-100 dark:bg-ink/60')+(i.resolved?' opacity-60':'')}>
+        <div className="flex justify-between gap-2"><b>{t(i.type)} · {t(i.room)}</b><span className="text-slate-500">{i.time}</span></div>
+        <div className="mt-1 flex flex-wrap gap-1 items-center"><Sev v={i.sev}/>{i.flag&&<span className="rounded-full px-2 py-0.5 text-xs bg-brass/30">{t('Needs manager attention')}</span>}{i.resolved&&<span className="text-xs text-emerald-600 dark:text-emerald-400">{t('Resolved')}</span>}</div>
+        <div className="mt-1">{t(i.note)}</div>{i.action&&<div className="mt-1 text-slate-600 dark:text-slate-300">{t('Action: {0}',t(i.action))}</div>}
+        <div className="flex justify-between items-center mt-1"><span className="text-slate-500">{t('By {0}',i.by)}</span>{isMgr&&!i.resolved&&<button className={btn2+' !py-1 text-xs'} onClick={()=>resolve(i.id)}>{t('Mark resolved')}</button>}</div></li>))}</ul>
+    </Card>
+  </div>);
+}
+
+const TABS=[['dash','Overview','▦'],['desk','Reception','✎'],['rooms','Rooms','▤'],['shift','Shift','◷'],['inc','Incidents','!']];
+const LANGS=[['ar','عربي'],['fr','FR'],['en','EN']];
+const AUTHMSG={wrong:'Wrong email or password.',network:'Network error. Check your connection.',unauthorized:'This account is not authorized for this hotel.'};
+
+function Login({lang,setLang,dark,setDark,err}){
+  const {t}=useL();
+  const [em,setEm]=useState('');const [pw,setPw]=useState('');const [busy,setBusy]=useState(false);const [e2,setE2]=useState('');
+  useEffect(()=>{setBusy(false)},[err]);
+  const go=e=>{e.preventDefault();if(!em.trim()||!pw)return;setBusy(true);setE2('');
+    auth.signInWithEmailAndPassword(em.trim(),pw).catch(x=>{setE2(x&&x.code==='auth/network-request-failed'?'network':'wrong');setBusy(false)})};
+  const m=e2||(err&&err.k);
+  return(<div className="min-h-screen grid place-items-center p-4">
+    <div className="w-full max-w-sm">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden" role="group" aria-label="Language">{LANGS.map(([c,l])=>(<button key={c} onClick={()=>setLang(c)} className={'px-3 py-2 text-sm '+(lang===c?'bg-brass text-ink font-semibold':'')}>{l}</button>))}</div>
+        <button className={btn2+' !py-2 text-sm'} onClick={()=>setDark(!dark)}>{dark?t('Light'):t('Dark')}</button>
+      </div>
+      <Card>
+        <div className="text-center mb-5"><div className="mx-auto h-14 w-14 rounded-xl bg-brass text-ink grid place-items-center font-serif text-3xl font-bold">{CONFIG.mark}</div><h1 className="font-serif text-2xl mt-3">{CONFIG.name}</h1></div>
+        <form onSubmit={go} className="space-y-3">
+          <Field label={t('Email')}><input type="email" dir="ltr" autoComplete="username" className={inp+' text-start'} value={em} onChange={e=>setEm(e.target.value)}/></Field>
+          <Field label={t('Password')}><input type="password" dir="ltr" autoComplete="current-password" className={inp+' text-start'} value={pw} onChange={e=>setPw(e.target.value)}/></Field>
+          {m&&<div role="alert" className="rounded-lg p-3 text-sm bg-red-500/15 text-red-700 dark:text-red-300">{t(AUTHMSG[m])}</div>}
+          <button disabled={busy} className={btn+' w-full disabled:opacity-60'}>{busy?t('Signing in…'):t('Sign in')}</button>
+        </form>
+      </Card>
+    </div></div>);
+}
+
+function App(){
+  const [tab,setTab]=useState('dash');
+  const [user,setUser]=useState(undefined);
+  const [authErr,setAuthErr]=useState(null);
+  const [lang,setLang]=useState(()=>{try{return localStorage.getItem('hotel:lang')||CONFIG.defaultLang}catch(e){return CONFIG.defaultLang}});
+  const [dark,setDark]=useState(()=>{try{return localStorage.getItem('hotel:theme')!=='light'}catch(e){return true}});
+  const [msg,setMsg]=useState('');
+  const [police,setPolice]=useState(false);
+  const [online,setOnline]=useState(navigator.onLine);
+  const last=useRef(Date.now());
+  const cur=CONFIG.currency[lang];
+  const t=(k,...a)=>{let v=lang==='en'?k:(D[k]?D[k][lang==='fr'?0:1]:k);a.forEach((x,i)=>{v=v.split('{'+i+'}').join(x)});return v};
+  const tf=k=>D[k]?D[k][0]:k;
+  const money=n=>Math.round(Number(n)||0).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'\u00a0')+'\u00a0'+cur;
+  const errH=e=>{if(!e)return;setMsg(t('Could not save: {0}',e.code==='permission-denied'?t('permission denied'):(e.code||e.message||'')))};
+  const {s,ready,A}=useHotel(user||null,errH);
+  const isMgr=!!user&&user.role==='manager';
+  const tabs=isMgr?TABS:TABS.filter(x=>x[0]!=='dash');
+  useEffect(()=>{if(ENV_ERR)return;const un=auth.onAuthStateChanged(async u=>{
+    if(!u){setUser(null);return}
+    try{
+      const sn=await col('staff').doc(u.uid).get();
+      const d=sn.exists?sn.data():null;
+      if(d&&d.active===true){setUser({uid:u.uid,email:u.email,name:d.name||u.email,role:d.role==='manager'?'manager':'receptionist'})}
+      else{setAuthErr({k:'unauthorized',n:Date.now()});setUser(null);auth.signOut()}
+    }catch(e){
+      setAuthErr({k:e&&e.code==='permission-denied'?'unauthorized':'network',n:Date.now()});setUser(null);auth.signOut();
+    }
+  });
+  const tm=setTimeout(()=>{setUser(u=>{if(u===undefined){setAuthErr({k:'network',n:Date.now()});return null}return u})},10000);
+  return()=>{un();clearTimeout(tm)}},[]);
+  useEffect(()=>{if(user)setTab(user.role==='manager'?'dash':'desk')},[user&&user.uid]);
+  useEffect(()=>{document.documentElement.classList.toggle('dark',dark);try{localStorage.setItem('hotel:theme',dark?'dark':'light')}catch(e){}},[dark]);
+  useEffect(()=>{document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';try{localStorage.setItem('hotel:lang',lang)}catch(e){}},[lang]);
+  useEffect(()=>{if(!msg)return;const x=setTimeout(()=>setMsg(''),2800);return()=>clearTimeout(x)},[msg]);
+  useEffect(()=>{const a=()=>setOnline(true),b=()=>setOnline(false);window.addEventListener('online',a);window.addEventListener('offline',b);return()=>{window.removeEventListener('online',a);window.removeEventListener('offline',b)}},[]);
+  useEffect(()=>{const bump=()=>{last.current=Date.now()};const ev=['pointerdown','keydown','touchstart'];ev.forEach(e=>window.addEventListener(e,bump));
+    const iv=setInterval(()=>{if(user&&user.role!=='manager'&&Date.now()-last.current>CONFIG.lockMinutes*60000)auth.signOut()},5000);
+    return()=>{ev.forEach(e=>window.removeEventListener(e,bump));clearInterval(iv)}},[user&&user.uid]);
+  const ctx={t,tf,money,cur,isMgr,A,user};
+  if(ENV_ERR)return(<Ctx.Provider value={ctx}><div className="min-h-screen grid place-items-center p-6 text-center"><div className="max-w-sm"><div className="text-4xl mb-3">⚠</div><p>{t(ENV_ERR==='sdk'?'Could not load Firebase. Check your internet connection and open the website address.':'This app must be opened from its website address (https), not as a local file.')}</p></div></div></Ctx.Provider>);
+  if(user===undefined)return(<Ctx.Provider value={ctx}><div className="min-h-screen grid place-items-center text-slate-500">{t('Loading…')}</div></Ctx.Provider>);
+  if(!user)return(<Ctx.Provider value={ctx}><Login lang={lang} setLang={setLang} dark={dark} setDark={setDark} err={authErr}/></Ctx.Provider>);
+  const P={s,toast:setMsg};
+  const alerts=s.incidents.filter(needsAttention).length;
+  const title=TABS.find(x=>x[0]===tab)[1];
+  const noRooms=ready.rooms&&s.rooms.length===0;
+  return(<Ctx.Provider value={ctx}><div className="md:flex min-h-screen">
+    <aside className="hidden md:flex md:flex-col w-56 shrink-0 bg-ink text-slate-200 p-4 sticky top-0 h-screen">
+      <div className="flex items-center gap-3 mb-8"><div className="h-10 w-10 rounded-lg bg-brass text-ink grid place-items-center font-serif text-xl font-bold">{CONFIG.mark}</div><div><div className="font-serif leading-tight">{CONFIG.name}</div></div></div>
+      <nav className="space-y-1">{tabs.map(([k,l,i])=>(<button key={k} onClick={()=>setTab(k)} className={'w-full text-start rounded-lg px-3 py-2.5 flex gap-3 '+(tab===k?'bg-brass text-ink font-medium':'hover:bg-white/10')}><span className="w-4 text-center">{i}</span>{t(l)}</button>))}</nav>
+    </aside>
+    <div className="flex-1 min-w-0 pb-24 md:pb-8">
+      {isMgr&&alerts>0&&tab!=='inc'&&<div role="alert" className="flex items-center justify-between gap-3 bg-red-600 text-white px-4 py-2.5 text-sm"><span>⚠ {t('{0} incident(s) need your attention',alerts)}</span><button className="rounded-md bg-white/20 px-3 py-1" onClick={()=>setTab('inc')}>{t('View')}</button></div>}
+      <header className="flex items-center justify-between gap-3 px-4 md:px-8 py-4">
+        <div><h1 className="font-serif text-2xl md:text-3xl">{t(title)}</h1><div className="md:hidden text-sm text-slate-500 dark:text-slate-400">{CONFIG.name}</div>
+          <div className="mt-1 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400"><span className={'h-2.5 w-2.5 rounded-full '+(online?'bg-emerald-500 animate-pulse':'bg-red-500')}></span>{online?t('Live'):t('Offline — changes are saved on this device')}</div></div>
+        <div className="flex flex-wrap justify-end items-center gap-2">
+          <div className="text-end leading-tight me-1"><div className="text-sm font-medium">{user.name}</div><div className="text-xs text-slate-500 dark:text-slate-400">{t(isMgr?'Manager':'Receptionist')}</div></div>
+          <div className="flex rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden" role="group" aria-label="Language">{LANGS.map(([c,l])=>(<button key={c} onClick={()=>setLang(c)} className={'px-3 py-2 text-sm '+(lang===c?'bg-brass text-ink font-semibold':'')}>{l}</button>))}</div>
+          <button className={btn2+' !py-2 text-sm'} onClick={()=>setDark(!dark)}>{dark?t('Light'):t('Dark')}</button>
+          <button className={btn2+' !py-2 text-sm'} onClick={()=>auth.signOut()}>{t('Sign out')}</button>
+        </div>
+      </header>
+      <main className="px-4 md:px-8">
+        {noRooms?(isMgr?<Card title={t('Hotel setup')}><p className="mb-3">{t('No rooms yet. Create the rooms to start.')}</p><button className={btn} onClick={()=>A.initRooms()}>{t('Create {0} rooms',CONFIG.floors.length*CONFIG.roomsPerFloor)}</button></Card>:<Card><p>{t('The manager has not set up the rooms yet.')}</p></Card>):(<>
+          {tab==='dash'&&isMgr&&<Dashboard {...P} openPolice={()=>setPolice(true)}/>}{tab==='desk'&&<ReceptionTab {...P}/>}{tab==='rooms'&&<RoomsTab {...P}/>}{tab==='shift'&&<ShiftTab {...P}/>}{tab==='inc'&&<IncidentsTab {...P}/>}</>)}
+      </main>
+    </div>
+    <nav className={'md:hidden fixed bottom-0 inset-x-0 bg-ink text-slate-300 grid border-t border-white/10 '+(isMgr?'grid-cols-5':'grid-cols-4')} style={{paddingBottom:'env(safe-area-inset-bottom,0px)'}}>
+      {tabs.map(([k,l,i])=>(<button key={k} onClick={()=>setTab(k)} className={'py-2.5 text-xs flex flex-col items-center gap-0.5 '+(tab===k?'text-brass font-semibold':'')}><span className="text-lg leading-none">{i}</span>{t(l)}</button>))}
+    </nav>
+    {police&&<Police s={s} onClose={()=>setPolice(false)}/>}
+    {msg&&<div role="status" className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] rounded-lg bg-brass text-ink px-4 py-2.5 shadow-lg text-sm font-medium max-w-[90vw]" style={{marginTop:'env(safe-area-inset-top,0px)'}}>{msg}</div>}
+  </div></Ctx.Provider>);
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
