@@ -39,6 +39,8 @@ tr{break-inside:avoid}
 #police table{page-break-after:avoid}
 }
 @page{size:A4 landscape;margin:12mm}
+@page rcpt{size:A5 portrait;margin:10mm}
+#police.rcpt{page:rcpt}
 </style>
 </head>
 <body class="bg-slate-100 text-slate-900 dark:bg-ink dark:text-slate-100 min-h-screen">
@@ -144,9 +146,19 @@ const D={
 'Action taken':['Action entreprise','الإجراء المتخذ'],'Flag for manager attention':["Signaler à l'attention du gérant",'تنبيه المدير لهذه الحالة'],'Needs manager attention':["À l'attention du gérant",'تحتاج انتباه المدير'],
 'Mark resolved':['Marquer comme résolu','تأكيد المعالجة'],'Resolved':['Résolu','تمت المعالجة'],'Action: {0}':['Action : {0}','الإجراء: {0}'],
 'Water leak from the ceiling.':["Fuite d'eau au plafond.",'تسرّب مياه من السقف.'],'Guest moved to another room.':['Client transféré dans une autre chambre.','تم نقل النزيل إلى غرفة أخرى.'],
-'Sign in':['Se connecter','تسجيل الدخول'],'Email':['E-mail','البريد الإلكتروني'],'Password':['Mot de passe','كلمة المرور'],'Signing in…':['Connexion…','جارٍ تسجيل الدخول…'],'Sign out':['Déconnexion','تسجيل الخروج'],
+'Sign in':['Se connecter','تسجيل الدخول'],'Email':['E-mail','البريد الإلكتروني'],'Password':['Mot de passe','كلمة المرور'],'Signing in…':['Connexion…','جارٍ تسجيل الدخول…'],'Sign out':['Déconnexion','خروج من الحساب'],
 'Wrong email or password.':['E-mail ou mot de passe incorrect.','البريد الإلكتروني أو كلمة المرور غير صحيحة.'],'Network error. Check your connection.':['Erreur réseau. Vérifiez votre connexion.','خطأ في الشبكة. تحقق من اتصالك.'],
 'This account is not authorized for this hotel.':["Ce compte n'est pas autorisé pour cet hôtel.",'هذا الحساب غير مصرّح له بالدخول إلى هذا الفندق.'],'Loading…':['Chargement…','جارٍ التحميل…'],
+'Prices':['Tarifs','الأسعار'],'Room prices':['Tarifs des chambres','أسعار الغرف'],'Apply to all rooms':['Appliquer à toutes les chambres','تطبيق على كل الغرف'],'Services prices (per stay)':['Prix des services (par séjour)','أسعار الخدمات (للإقامة الواحدة)'],'Prices saved.':['Tarifs enregistrés.','تم حفظ الأسعار.'],'Price per night':['Prix par nuit','سعر الليلة'],
+'Nights':['Nuits','عدد الليالي'],'Rate per night':['Tarif par nuit','سعر الليلة'],'Reason for price change':['Motif du changement de tarif','سبب تغيير السعر'],'Default price set by the manager':['Tarif par défaut défini par le gérant','السعر الافتراضي يحدده المدير'],
+'Total due':['Total à payer','الإجمالي المستحق'],'{0} nights × {1}':['{0} nuit(s) × {1}','{0} ليلة × {1}'],'Services total':['Total des services','مجموع الخدمات'],'Paid now':['Payé maintenant','المدفوع الآن'],'Balance':['Reste à payer','المتبقي'],'Paid':['Payé','المدفوع'],
+'Enter a valid price.':['Saisissez un tarif valide.','أدخل سعراً صحيحاً.'],'Paid amount cannot exceed the total.':['Le montant payé ne peut pas dépasser le total.','المبلغ المدفوع لا يمكن أن يتجاوز الإجمالي.'],
+'Extend stay':['Prolonger le séjour','تمديد الإقامة'],'Add nights':['Ajouter des nuits','إضافة ليالٍ'],'Extend':['Prolonger','تمديد'],'Stay extended: {0} nights.':['Séjour prolongé : {0} nuit(s).','تم تمديد الإقامة: {0} ليلة.'],
+'Check out':['Départ','مغادرة النزيل'],'Settlement':['Règlement','التسوية'],'Amount to collect':['Montant à encaisser','المبلغ المراد قبضه'],'Collect and check out':['Encaisser et enregistrer le départ','قبض المبلغ وتسجيل الخروج'],
+'Check out leaving {0} unpaid':['Départ avec {0} impayé','تسجيل الخروج مع بقاء {0} غير مدفوع'],'The balance must be collected before check-out.':['Le solde doit être encaissé avant le départ.','يجب قبض المتبقي قبل تسجيل الخروج.'],
+'Payment must be collected by an employee allowed to handle cash.':['Le paiement doit être encaissé par un employé autorisé.','يجب أن يقبض المبلغَ موظفٌ لديه صلاحية الصندوق.'],'Print receipt':['Imprimer le reçu','طباعة الإيصال'],'Back':['Retour','رجوع'],
+'Manager options':['Options du gérant','خيارات المدير'],'Unpaid {0}':['Impayé {0}','غير مدفوع {0}'],'Open balances':['Soldes ouverts','متبقيات مستحقة'],'Change room price':['Modifier le tarif des chambres','تعديل سعر الغرفة'],
+'Receipt':['Reçu','إيصال'],'Receipt no.':['Reçu n°','رقم الإيصال'],'Arrival':['Arrivée','الوصول'],'Departure':['Départ','المغادرة'],'Payments':['Paiements','الدفعات'],'Thank you for staying with us.':['Merci de votre séjour.','شكراً لإقامتكم معنا.'],'Date':['Date','التاريخ'],'Signature':['Signature','التوقيع'],
 'Permissions':['Permissions','الصلاحيات'],'Add employee':['Ajouter un employé','إضافة موظف'],'Employees':['Employés','الموظفون'],'Generate':['Générer','توليد'],'Save':['Enregistrer','حفظ'],'Creating…':['Création…','جارٍ الإنشاء…'],
 'Password (at least 6 characters)':['Mot de passe (6 caractères minimum)','كلمة المرور (6 أحرف على الأقل)'],
 'Employee created. Give them the email and password.':["Employé créé. Communiquez-lui l'e-mail et le mot de passe.",'تم إنشاء الموظف. سلّمه البريد وكلمة المرور.'],
@@ -180,6 +192,9 @@ const hhmm=()=>new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-d
 const ymd=(d=new Date())=>{const z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())};
 const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return ymd(d)};
 const lc=x=>String(x||'').trim().toLowerCase();
+const paidOf=g=>Number(g.paidAmount)||0;
+const totalOf=g=>g.total!=null?Number(g.total):paidOf(g);
+const balOf=g=>Math.max(0,totalOf(g)-paidOf(g));
 const needsAttention=i=>!i.resolved&&(i.sev==='critical'||i.type==='Early Checkout'||i.flag);
 
 const ENV_ERR=typeof firebase==='undefined'?'sdk':((window.__mockFirebase||/^https?:$/.test(location.protocol))?'':'protocol');
@@ -212,7 +227,19 @@ function useHotel(user,onError){
       checkIn:w((g,method,amount,next)=>{const b=fs.batch();
         b.set(col('guests').doc(uid()),{...g,active:true,ts:Date.now(),by:user.name});
         b.update(col('rooms').doc(String(g.room)),{status:'occupied'});
-        b.set(S(),{payments:{[method]:FV.increment(amount)},nextSeq:next},{merge:true});return b.commit()}),
+        b.set(S(),amount>0?{payments:{[method]:FV.increment(amount)},nextSeq:next}:{nextSeq:next},{merge:true});return b.commit()}),
+      checkOut:w((g,payment,left)=>{const b=fs.batch();
+        const u={active:false,outAt:Date.now(),balanceDue:left||0};
+        if(payment){u.payments=FV.arrayUnion(payment);u.paidAmount=FV.increment(payment.amount)}
+        b.update(col('guests').doc(g.id),u);
+        b.update(col('rooms').doc(String(g.room)),{status:'dirty'});
+        if(payment)b.set(S(),{payments:{[payment.method]:FV.increment(payment.amount)}},{merge:true});
+        return b.commit()}),
+      extend:w((g,n,rate)=>{const nights=(Number(g.nights)||1)+n;const od=new Date((g.outDate||ymd())+'T00:00:00');od.setDate(od.getDate()+n);
+        return col('guests').doc(g.id).update({nights,total:nights*rate+(Number(g.extras)||0),outDate:ymd(od),rate})}),
+      setRates:w((rates,prices)=>{const b=fs.batch();
+        Object.keys(rates).forEach(id=>b.update(col('rooms').doc(String(id)),{rate:rates[id]}));
+        b.set(S(),{servicePrices:prices},{merge:true});return b.commit()}),
       setRoom:w((id,status,guests)=>{const b=fs.batch();
         b.update(col('rooms').doc(String(id)),{status});
         guests.filter(g=>g.room===id).forEach(g=>b.update(col('guests').doc(g.id),{active:false,outAt:Date.now()}));return b.commit()}),
@@ -243,6 +270,7 @@ function useHotel(user,onError){
     shift:st.shift||{drawer:CONFIG.startingDrawer,start:CONFIG.shiftStart},
     handover:st.handover||null,
     nextSeq:st.nextSeq||1,
+    servicePrices:st.servicePrices||{},
   };
   return{s,ready:d.ready,A};
 }
@@ -306,8 +334,8 @@ function Dashboard({s,openPolice}){
       <div className="mt-4 grid grid-cols-3 gap-2 text-center">
         {[['Total',total],['Vacant',vac],['Maintenance',mnt]].map(([l,v])=>(<div key={l} className="rounded-lg bg-slate-100 dark:bg-ink/60 py-2"><div className="text-2xl font-semibold">{v}</div><div className="text-xs text-slate-500 dark:text-slate-400">{t(l)}</div></div>))}
       </div>
-      <div className="mt-2 grid grid-cols-2 gap-2 text-center">
-        {[['Guests on premises',s.guests.length],['Expected check-outs today',outToday]].map(([l,v])=>(<div key={l} className="rounded-lg bg-slate-100 dark:bg-ink/60 py-2 px-1"><div className="text-2xl font-semibold">{v}</div><div className="text-xs text-slate-500 dark:text-slate-400">{t(l)}</div></div>))}
+      <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+        {[['Guests on premises',s.guests.length],['Expected check-outs today',outToday],['Open balances',money(s.guests.reduce((a,g)=>a+balOf(g),0))]].map(([l,v])=>(<div key={l} className="rounded-lg bg-slate-100 dark:bg-ink/60 py-2 px-1"><div className="text-lg font-semibold">{v}</div><div className="text-xs text-slate-500 dark:text-slate-400">{t(l)}</div></div>))}
       </div>
     </Card>
     <Card title={t('On duty at reception')}>
@@ -336,15 +364,28 @@ function Dashboard({s,openPolice}){
 }
 
 function ReceptionTab({s,toast}){
-  const {t,cur,A,can,openPolice}=useL();
+  const {t,cur,money,A,can,openPolice,user}=useL();
   const free=s.rooms.filter(r=>r.status==='vacant');
-  const blank={docType:CONFIG.docTypes[0],docId:'',name:'',dob:'',pob:'',nat:'',address:'',phone:'',plate:'',room:'',services:[],seq:s.nextSeq,outDate:addDays(1),amount:CONFIG.rate,method:'cash'};
-  const [f,setF]=useState(blank);const [q,setQ]=useState('');
+  const defRate=id=>{const r=s.rooms.find(x=>x.id===Number(id));return(r&&r.rate!=null)?Number(r.rate):CONFIG.rate};
+  const nightsFrom=d=>Math.max(1,Math.round((new Date(d+'T00:00:00')-new Date(ymd()+'T00:00:00'))/864e5));
+  const blank={docType:CONFIG.docTypes[0],docId:'',name:'',dob:'',pob:'',nat:'',address:'',phone:'',plate:'',room:'',services:[],seq:s.nextSeq,outDate:addDays(1),nights:1,rate:String(CONFIG.rate),rateNote:'',amount:'',method:'cash'};
+  const [f,setF]=useState(blank);const [q,setQ]=useState('');const [touched,setTouched]=useState(false);
+  const sp=s.servicePrices||{};
+  const extras=f.services.reduce((a,v)=>a+(Number(sp[v])||0),0);
+  const rate=Number(f.rate)||0;
+  const total=f.nights*rate+extras;
+  const paidNow=Number(f.amount)||0;
+  const canPrice=can('price');
   useEffect(()=>{setF(x=>({...x,seq:s.nextSeq}))},[s.nextSeq]);
+  useEffect(()=>{if(!touched)setF(x=>({...x,amount:String(total)}))},[total,touched]);
   const set=(k,v)=>setF(x=>({...x,[k]:v}));
+  const pickRoom=v=>setF(x=>({...x,room:v,rate:v?String(defRate(v)):x.rate}));
+  const setNights=n=>{const k=Math.max(1,Math.round(Number(n))||1);setF(x=>({...x,nights:k,outDate:addDays(k)}))};
+  const setOut=d=>{if(d)setF(x=>({...x,outDate:d,nights:nightsFrom(d)}))};
   const tog=v=>set('services',f.services.includes(v)?f.services.filter(x=>x!==v):[...f.services,v]);
   const dupe=f.docId.trim()&&s.guests.find(g=>lc(g.docId)===lc(f.docId));
   const black=f.docId.trim()&&s.blacklist.find(b=>lc(b.docId)===lc(f.docId));
+  const changed=f.room&&rate!==defRate(f.room);
   const submit=e=>{e.preventDefault();
     if(!f.name||!f.docId||!f.room){toast(t('Fill in name, document number and room.'));return}
     if(dupe){toast(t('Guest currently checked in in Room {0}.',dupe.room));return}
@@ -352,8 +393,11 @@ function ReceptionTab({s,toast}){
     const room=Number(f.room);
     const rm=s.rooms.find(x=>x.id===room);
     if(!rm||rm.status!=='vacant'){toast(t('This room is no longer available.'));set('room','');return}
-    A.checkIn({seq:Number(f.seq),docType:f.docType,docId:f.docId.trim(),name:f.name,dob:f.dob,pob:f.pob,nat:f.nat,address:f.address,phone:f.phone,plate:f.plate,room,services:f.services,time:hhmm(),inDate:ymd(),outDate:f.outDate,paidAmount:Number(f.amount||0),paidMethod:f.method},f.method,Number(f.amount||0),Number(f.seq)+1);
-    setF({...blank,seq:Number(f.seq)+1});toast(t('Guest checked in to room {0}.',room));};
+    if(!(rate>0)){toast(t('Enter a valid price.'));return}
+    if(paidNow>total){toast(t('Paid amount cannot exceed the total.'));return}
+    const pay=paidNow>0?[{id:uid(),amount:paidNow,method:f.method,at:Date.now(),by:user.name}]:[];
+    A.checkIn({seq:Number(f.seq),docType:f.docType,docId:f.docId.trim(),name:f.name,dob:f.dob,pob:f.pob,nat:f.nat,address:f.address,phone:f.phone,plate:f.plate,room,services:f.services,time:hhmm(),inDate:ymd(),outDate:f.outDate,nights:f.nights,rate,rateNote:changed?f.rateNote.trim():'',extras,total,payments:pay,paidAmount:paidNow,paidMethod:paidNow>0?f.method:null},f.method,paidNow,Number(f.seq)+1);
+    setTouched(false);setF({...blank,seq:Number(f.seq)+1});toast(t('Guest checked in to room {0}.',room));};
   const list=s.guests.filter(g=>(g.name+g.room).toLowerCase().includes(q.toLowerCase()));
   const sv=g=>g.services.map(t).join(', ');
   return(<div className="grid gap-4 lg:grid-cols-5">
@@ -374,17 +418,27 @@ function ReceptionTab({s,toast}){
           <Field label={t('Phone number')}><input type="tel" dir="ltr" className={inp+' text-start'} value={f.phone} onChange={e=>set('phone',e.target.value)}/></Field>
         </div>
         <Field label={t('Address')}><input className={inp} value={f.address} onChange={e=>set('address',e.target.value)}/></Field>
+        <Field label={t('Vehicle plate (optional)')}><input dir="ltr" className={inp+' text-start'} value={f.plate} onChange={e=>set('plate',e.target.value)}/></Field>
+        <Field label={t('Room (clean and vacant only: {0})',free.length)}><select className={inp} value={f.room} onChange={e=>pickRoom(e.target.value)}><option value="">{t('Select a room')}</option>{free.map(r=><option key={r.id} value={r.id}>{t('Room {0} · Floor {1}',r.id,r.floor)}</option>)}</select></Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label={t('Vehicle plate (optional)')}><input dir="ltr" className={inp+' text-start'} value={f.plate} onChange={e=>set('plate',e.target.value)}/></Field>
-          <Field label={t('Expected check-out')}><input type="date" min={ymd()} className={inp} value={f.outDate} onChange={e=>set('outDate',e.target.value)}/></Field>
+          <Field label={t('Nights')}><input type="number" min="1" className={inp} value={f.nights} onChange={e=>setNights(e.target.value)}/></Field>
+          <Field label={t('Expected check-out')}><input type="date" min={addDays(1)} className={inp} value={f.outDate} onChange={e=>setOut(e.target.value)}/></Field>
         </div>
-        <Field label={t('Room (clean and vacant only: {0})',free.length)}><select className={inp} value={f.room} onChange={e=>set('room',e.target.value)}><option value="">{t('Select a room')}</option>{free.map(r=><option key={r.id} value={r.id}>{t('Room {0} · Floor {1}',r.id,r.floor)}</option>)}</select></Field>
+        <Field label={t('Rate per night')+' ('+cur+')'}><input type="number" min="0" className={inp+(canPrice?'':' opacity-70')} readOnly={!canPrice} value={f.rate} onChange={e=>set('rate',e.target.value)}/></Field>
+        {!canPrice&&<p className="text-xs text-slate-500 dark:text-slate-400 -mt-2">{t('Default price set by the manager')}</p>}
+        {changed&&<Field label={t('Reason for price change')}><input className={inp} value={f.rateNote} onChange={e=>set('rateNote',e.target.value)}/></Field>}
         <fieldset><legend className="text-sm text-slate-500 dark:text-slate-400">{t('Extra services')}</legend>
-          <div className="mt-1 flex flex-wrap gap-2">{CONFIG.services.map(v=>(<label key={v} className={'cursor-pointer rounded-lg border px-3 py-2 text-sm '+(f.services.includes(v)?'border-brass bg-brass/15':'border-slate-300 dark:border-slate-600')}><input type="checkbox" className="me-2 accent-amber-600" checked={f.services.includes(v)} onChange={()=>tog(v)}/>{t(v)}</label>))}</div></fieldset>
+          <div className="mt-1 flex flex-wrap gap-2">{CONFIG.services.map(v=>(<label key={v} className={'cursor-pointer rounded-lg border px-3 py-2 text-sm '+(f.services.includes(v)?'border-brass bg-brass/15':'border-slate-300 dark:border-slate-600')}><input type="checkbox" className="me-2 accent-amber-600" checked={f.services.includes(v)} onChange={()=>tog(v)}/>{t(v)}{Number(sp[v])>0&&<span className="text-slate-500 dark:text-slate-400"> · {money(sp[v])}</span>}</label>))}</div></fieldset>
+        <div className="rounded-lg bg-slate-100 dark:bg-ink/60 p-3 text-sm space-y-1">
+          <div className="flex justify-between"><span>{t('{0} nights × {1}',f.nights,money(rate))}</span><span>{money(f.nights*rate)}</span></div>
+          {extras>0&&<div className="flex justify-between"><span>{t('Services total')}</span><span>{money(extras)}</span></div>}
+          <div className="flex justify-between font-semibold text-base"><span>{t('Total due')}</span><span>{money(total)}</span></div>
+        </div>
         <div className="grid grid-cols-2 gap-3">
-          <Field label={t('Amount paid ({0})',cur)}><input type="number" className={inp} value={f.amount} onChange={e=>set('amount',e.target.value)}/></Field>
+          <Field label={t('Paid now')+' ('+cur+')'}><input type="number" min="0" className={inp} value={f.amount} onChange={e=>{setTouched(true);set('amount',e.target.value)}}/></Field>
           <Field label={t('Payment')}><select className={inp} value={f.method} onChange={e=>set('method',e.target.value)}><option value="cash">{t('Cash')}</option><option value="card">{t('Card')}</option></select></Field>
         </div>
+        <div className={'flex justify-between text-sm font-medium '+(total-paidNow>0?'text-red-600 dark:text-red-400':'text-emerald-600 dark:text-emerald-400')}><span>{t('Balance')}</span><span>{money(Math.max(0,total-paidNow))}</span></div>
         <button className={btn+' w-full'}>{t('Check in guest')}</button>
       </form>
     </Card>}
@@ -393,32 +447,41 @@ function ReceptionTab({s,toast}){
       <input className={inp+' mb-3'} placeholder={t('Search by name or room number')} value={q} onChange={e=>setQ(e.target.value)}/>
       {list.length===0&&<p className="text-slate-500">{t('No guests match your search.')}</p>}
       <div className="hidden md:block overflow-x-auto"><table className="w-full text-sm text-start">
-        <thead className="text-slate-500 dark:text-slate-400"><tr>{['No.','Guest','Document','Room','Services','Out'].map(h=><th key={h} className="py-2 pe-3 font-medium text-start">{t(h)}</th>)}</tr></thead>
-        <tbody>{list.map(g=>(<tr key={g.id} className="border-t border-slate-200 dark:border-slate-700/60"><td className="py-2 pe-3">{g.seq}</td><td className="pe-3"><div className="font-medium">{g.name}</div><div className="text-slate-500" dir="ltr">{g.phone}</div></td><td className="pe-3">{t(g.docType)}<div className="text-slate-500">{g.docId}</div></td><td className="pe-3 font-semibold">{g.room}</td><td className="pe-3">{sv(g)||'—'}</td><td>{g.outDate||'—'}</td></tr>))}</tbody>
+        <thead className="text-slate-500 dark:text-slate-400"><tr>{['No.','Guest','Document','Room','Services','Out','Balance'].map(h=><th key={h} className="py-2 pe-3 font-medium text-start">{t(h)}</th>)}</tr></thead>
+        <tbody>{list.map(g=>(<tr key={g.id} className="border-t border-slate-200 dark:border-slate-700/60"><td className="py-2 pe-3">{g.seq}</td><td className="pe-3"><div className="font-medium">{g.name}</div><div className="text-slate-500" dir="ltr">{g.phone}</div></td><td className="pe-3">{t(g.docType)}<div className="text-slate-500">{g.docId}</div></td><td className="pe-3 font-semibold">{g.room}</td><td className="pe-3">{sv(g)||'—'}</td><td className="pe-3">{g.outDate||'—'}</td><td className={balOf(g)>0?'text-red-500 font-medium':''}>{money(balOf(g))}</td></tr>))}</tbody>
       </table></div>
-      <div className="md:hidden space-y-2">{list.map(g=>(<div key={g.id} className="rounded-lg bg-slate-100 dark:bg-ink/60 p-3 text-sm"><div className="flex justify-between"><b>{g.name}</b><b>{t('Room {0}',g.room)}</b></div><div className="text-slate-500">#{g.seq} · {t(g.docType)} {g.docId}</div><div className="text-slate-500"><span dir="ltr">{g.phone}</span> · {t('Out')}: {g.outDate||'—'}</div>{g.services.length>0&&<div>{sv(g)}</div>}</div>))}</div>
+      <div className="md:hidden space-y-2">{list.map(g=>(<div key={g.id} className="rounded-lg bg-slate-100 dark:bg-ink/60 p-3 text-sm"><div className="flex justify-between"><b>{g.name}</b><b>{t('Room {0}',g.room)}</b></div><div className="text-slate-500">#{g.seq} · {t(g.docType)} {g.docId}</div><div className="text-slate-500"><span dir="ltr">{g.phone}</span> · {t('Out')}: {g.outDate||'—'}</div>{g.services.length>0&&<div>{sv(g)}</div>}{balOf(g)>0&&<div className="text-red-500 font-medium">{t('Balance')}: {money(balOf(g))}</div>}</div>))}</div>
     </Card>
   </div>);
 }
 
 function RoomsTab({s,toast}){
-  const {t,A}=useL();
+  const {t,money,A,can,isMgr,user,openReceipt}=useL();
   const [sel,setSel]=useState(null);
+  const [settle,setSettle]=useState(false);const [ext,setExt]=useState(1);const [amt,setAmt]=useState('');const [meth,setMeth]=useState('cash');
   const sw=useRef(null),swiped=useRef(false);
   const room=s.rooms.find(r=>r.id===sel);
   const guest=room&&s.guests.find(g=>g.room===room.id);
+  const bal=guest?balOf(guest):0;
+  const canPay=can('cash')||can('checkin');
+  const openRoom=(id,st)=>{setSel(id);setSettle(!!st);setExt(1);setMeth('cash');const g=s.guests.find(x=>x.room===id);setAmt(g?String(balOf(g)):'')};
   const setRoom=(id,st)=>A.setRoom(id,st,s.guests);
   const change=(st)=>{setRoom(sel,st);toast(t('Room {0}: {1}.',sel,t(STATUS[st].label)));setSel(null)};
-  const checkout=()=>{setRoom(sel,'dirty');toast(t('Room {0} checked out. Marked for housekeeping.',sel));setSel(null)};
+  const doOut=(collect)=>{const a=collect?Math.min(Math.max(Number(amt)||0,0),bal):0;const left=Math.max(0,bal-a);
+    A.checkOut(guest,a>0?{id:uid(),amount:a,method:meth,at:Date.now(),by:user.name}:null,left);
+    toast(t('Room {0} checked out. Marked for housekeeping.',sel));setSel(null)};
+  const doExtend=()=>{const n=Math.max(1,Math.round(Number(ext))||1);const r=guest.rate!=null?Number(guest.rate):(room.rate!=null?Number(room.rate):CONFIG.rate);
+    A.extend(guest,n,r);toast(t('Stay extended: {0} nights.',n))};
   const advance=r=>{
-    if(r.status==='occupied'){setRoom(r.id,'dirty');toast(t('Room {0} checked out. Marked for housekeeping.',r.id))}
+    if(r.status==='occupied'){openRoom(r.id,true)}
     else if(r.status==='dirty'){setRoom(r.id,'vacant');toast(t('Room {0}: {1}.',r.id,t(STATUS.vacant.label)))}
     else if(r.status==='oos'){setRoom(r.id,'dirty');toast(t('Room {0}: {1}.',r.id,t(STATUS.dirty.label)))}
     else toast(t('Room {0} is clean and vacant. Use the room menu for other changes.',r.id));
   };
   const down=(e,r)=>{sw.current={x:e.clientX,y:e.clientY,id:r.id}};
   const up=(e,r)=>{const a=sw.current;sw.current=null;if(!a||a.id!==r.id)return;const dx=e.clientX-a.x,dy=Math.abs(e.clientY-a.y);if(Math.abs(dx)>60&&dy<40){swiped.current=true;advance(r)}};
-  const click=r=>{if(swiped.current){swiped.current=false;return}setSel(r.id)};
+  const click=r=>{if(swiped.current){swiped.current=false;return}openRoom(r.id,false)};
+  const line=(l,v,cls)=>(<div className={'flex justify-between '+(cls||'')}><span>{l}</span><span>{v}</span></div>);
   return(<div>
     <div className="flex flex-wrap gap-4 mb-2 text-sm">{Object.entries(STATUS).map(([k,v])=>(<span key={k} className="flex items-center gap-2"><span className={'h-3 w-3 rounded-full '+v.dot}></span>{t(v.label)}</span>))}</div>
     <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">{t('Swipe a room card sideways to move it forward: checked out, then cleaned.')}</p>
@@ -434,10 +497,40 @@ function RoomsTab({s,toast}){
         {guest&&(<div className="mt-4 rounded-lg bg-slate-100 dark:bg-ink/60 p-3 text-sm space-y-1"><div className="font-semibold text-base">{guest.name}</div><div dir="ltr" className="text-start">{guest.phone}</div><div>{t(guest.docType)}: {guest.docId}</div>
           {(guest.dob||guest.pob)&&<div>{t('Date of birth')}: {guest.dob||'—'} · {guest.pob||'—'}</div>}{guest.nat&&<div>{t('Nationality')}: {t(guest.nat)}</div>}{guest.address&&<div>{t('Address')}: {guest.address}</div>}{guest.plate&&<div>{t('Vehicle plate (optional)')}: <span dir="ltr">{guest.plate}</span></div>}
           <div>{t('Services: {0}',guest.services.map(t).join(', ')||t('none'))}</div><div>{t('Checked in at {0} · entry no. {1}',guest.time,guest.seq)}</div>{guest.outDate&&<div>{t('Expected check-out')}: {guest.outDate}</div>}</div>)}
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          {room.status==='occupied'&&<button className={btn+' col-span-2'} onClick={checkout}>{t('Check out guest')}</button>}
-          {Object.entries(STATUS).filter(([k])=>k!==room.status&&k!=='occupied').map(([k,v])=>(<button key={k} className={btn2} onClick={()=>change(k)}>{room.status==='occupied'?t('Check out and set to {0}',t(v.label)):t('Set to {0}',t(v.label))}</button>))}
-        </div>
+        {guest&&(<div className="mt-3 rounded-lg border border-slate-200 dark:border-slate-700/60 p-3 text-sm space-y-1">
+          {guest.rate!=null&&line(t('{0} nights × {1}',guest.nights||1,money(guest.rate)),money((guest.nights||1)*guest.rate))}
+          {Number(guest.extras)>0&&line(t('Services total'),money(guest.extras))}
+          {line(t('Total due'),money(totalOf(guest)),'font-semibold')}
+          {line(t('Paid'),money(paidOf(guest)))}
+          {line(t('Balance'),money(bal),bal>0?'font-semibold text-red-600 dark:text-red-400':'text-emerald-600 dark:text-emerald-400')}
+          {guest.rateNote&&<div className="text-xs text-slate-500 dark:text-slate-400">{guest.rateNote}</div>}
+        </div>)}
+        {guest&&!settle&&(<div className="mt-4 space-y-2">
+          {can('checkin')&&<div className="flex gap-2"><input type="number" min="1" className={inp+' !w-24'} value={ext} onChange={e=>setExt(e.target.value)} aria-label={t('Add nights')}/><button className={btn2+' flex-1'} onClick={doExtend}>{t('Extend stay')}</button></div>}
+          <button className={btn2+' w-full'} onClick={()=>openReceipt(guest)}>{t('Print receipt')}</button>
+          <button className={btn+' w-full'} onClick={()=>{setSettle(true);setAmt(String(bal))}}>{t('Check out')}</button>
+        </div>)}
+        {guest&&settle&&(<div className="mt-4 space-y-3">
+          <h4 className="font-serif text-lg">{t('Settlement')}</h4>
+          {bal<=0&&<button className={btn+' w-full'} onClick={()=>doOut(false)}>{t('Check out')}</button>}
+          {bal>0&&canPay&&(<>
+            <div className="grid grid-cols-2 gap-2"><Field label={t('Amount to collect')}><input type="number" min="0" className={inp} value={amt} onChange={e=>setAmt(e.target.value)}/></Field>
+              <Field label={t('Payment')}><select className={inp} value={meth} onChange={e=>setMeth(e.target.value)}><option value="cash">{t('Cash')}</option><option value="card">{t('Card')}</option></select></Field></div>
+            {!isMgr&&Number(amt)<bal&&<p className="text-sm text-red-600 dark:text-red-400">{t('The balance must be collected before check-out.')}</p>}
+            <button className={btn+' w-full disabled:opacity-50'} disabled={!(Number(amt)>0)||(!isMgr&&Number(amt)<bal)} onClick={()=>doOut(true)}>{t('Collect and check out')}</button>
+            {isMgr&&<button className={btn2+' w-full'} onClick={()=>doOut(false)}>{t('Check out leaving {0} unpaid',money(bal))}</button>}
+          </>)}
+          {bal>0&&!canPay&&<p className="text-sm text-red-600 dark:text-red-400">{t('Payment must be collected by an employee allowed to handle cash.')}</p>}
+          <button className={btn2+' w-full'} onClick={()=>openReceipt(guest)}>{t('Print receipt')}</button>
+          <button className="w-full text-sm text-slate-500 dark:text-slate-400 py-1" onClick={()=>setSettle(false)}>{t('Back')}</button>
+        </div>)}
+        {room.status!=='occupied'&&<div className="mt-4 grid grid-cols-2 gap-2">
+          {Object.entries(STATUS).filter(([k])=>k!==room.status&&k!=='occupied').map(([k,v])=>(<button key={k} className={btn2} onClick={()=>change(k)}>{t('Set to {0}',t(v.label))}</button>))}
+        </div>}
+        {room.status==='occupied'&&isMgr&&!settle&&<div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700/60">
+          <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">{t('Manager options')}</div>
+          <div className="grid grid-cols-2 gap-2">{Object.entries(STATUS).filter(([k])=>k!=='occupied').map(([k,v])=>(<button key={k} className={btn2+' text-sm'} onClick={()=>change(k)}>{t('Check out and set to {0}',t(v.label))}</button>))}</div>
+        </div>}
       </div></div>)}
   </div>);
 }
@@ -517,7 +610,7 @@ function IncidentsTab({s,toast}){
 }
 
 function ArchiveTab(){
-  const {t,money}=useL();
+  const {t,money,openReceipt}=useL();
   const [sub,setSub]=useState('stays');
   const [rows,setRows]=useState(null);const [lim,setLim]=useState(300);
   const [q,setQ]=useState('');const [flt,setFlt]=useState('all');const [open,setOpen]=useState(null);
@@ -550,7 +643,7 @@ function ArchiveTab(){
         <button className="w-full text-start p-3" onClick={()=>setOpen(open===g.id?null:g.id)}>
           <div className="flex justify-between gap-2"><b>{g.name}</b><b>{t('Room {0}',g.room)}</b></div>
           <div className="text-sm text-slate-500 dark:text-slate-400">{t(g.docType)} {g.docId} · {g.inDate} {g.time}</div>
-          <div className="text-sm mt-1 flex justify-between gap-2"><span className={g.active===false?'text-slate-500 dark:text-slate-400':'text-emerald-600 dark:text-emerald-400'}>{g.active===false?t('Checked out {0}',fdt(g.outAt)):t('Still in the hotel')}</span><span>{g.paidAmount!=null?money(g.paidAmount)+' · '+t(g.paidMethod==='card'?'Card':'Cash'):'—'}</span></div>
+          <div className="text-sm mt-1 flex justify-between gap-2"><span className={g.active===false?'text-slate-500 dark:text-slate-400':'text-emerald-600 dark:text-emerald-400'}>{g.active===false?t('Checked out {0}',fdt(g.outAt)):t('Still in the hotel')}</span><span>{money(paidOf(g))}{balOf(g)>0&&<b className="text-red-500"> · {t('Unpaid {0}',money(balOf(g)))}</b>}</span></div>
         </button>
         {open===g.id&&<div className="px-3 pb-3 text-sm space-y-1 border-t border-slate-200 dark:border-slate-700/60 pt-2">
           <div>{t('Entry no.')}: {g.seq}</div>
@@ -560,6 +653,9 @@ function ArchiveTab(){
           {g.plate&&<div>{t('Vehicle plate (optional)')}: <span dir="ltr">{g.plate}</span></div>}
           <div>{t('Services: {0}',(g.services||[]).map(t).join(', ')||t('none'))}</div>
           <div>{t('Expected check-out')}: {g.outDate||'—'}</div>
+          {g.rate!=null&&<div>{t('{0} nights × {1}',g.nights||1,money(g.rate))}{g.rateNote?' · '+g.rateNote:''}</div>}
+          <div>{t('Total due')}: {money(totalOf(g))} · {t('Paid')}: {money(paidOf(g))} · {t('Balance')}: {money(balOf(g))}</div>
+          <button className={btn2+' !py-1.5 text-sm'} onClick={()=>openReceipt(g)}>{t('Print receipt')}</button>
           <div className="text-slate-500 dark:text-slate-400">{t('Registered by {0}',g.by||'—')}</div>
         </div>}
       </li>):(
@@ -579,8 +675,8 @@ function ArchiveTab(){
   </div>);
 }
 
-const PERMS=[['checkin','Register guests (check-in)'],['rooms','Change room status and check out'],['incidents','Report incidents'],['cash','Cash drawer and shift closing'],['police','Print the police register']];
-const NOPERMS={checkin:false,rooms:false,incidents:false,cash:false,police:false};
+const PERMS=[['checkin','Register guests (check-in)'],['rooms','Change room status and check out'],['incidents','Report incidents'],['cash','Cash drawer and shift closing'],['police','Print the police register'],['price','Change room price']];
+const NOPERMS={checkin:false,rooms:false,incidents:false,cash:false,police:false,price:false};
 
 function PermBoxes({perms,onChange}){
   const {t}=useL();
@@ -650,7 +746,59 @@ function PermissionsTab({toast}){
   </div>);
 }
 
-const TABS=[['dash','Overview','▦'],['desk','Reception','✎'],['rooms','Rooms','▤'],['shift','Shift','◷'],['inc','Incidents','!'],['arch','Archive','▣'],['perm','Permissions','⚙']];
+function PricesTab({s,toast}){
+  const {t,A,cur}=useL();
+  const [rates,setRates]=useState({});const [sp,setSp]=useState({});const [bulk,setBulk]=useState('');
+  useEffect(()=>{const r={};s.rooms.forEach(x=>{r[x.id]=String(x.rate!=null?x.rate:CONFIG.rate)});setRates(r)},[s.rooms.map(x=>x.id+':'+x.rate).join(',')]);
+  useEffect(()=>{const o={};CONFIG.services.forEach(v=>{o[v]=String((s.servicePrices||{})[v]||0)});setSp(o)},[JSON.stringify(s.servicePrices||{})]);
+  const applyAll=()=>{if(bulk==='')return;const r={};s.rooms.forEach(x=>{r[x.id]=bulk});setRates(r)};
+  const save=()=>{const R={};s.rooms.forEach(x=>{R[x.id]=Math.max(0,Number(rates[x.id])||0)});const P={};CONFIG.services.forEach(v=>{P[v]=Math.max(0,Number(sp[v])||0)});A.setRates(R,P);toast(t('Prices saved.'))};
+  return(<div className="grid gap-4 lg:grid-cols-2">
+    <Card title={t('Room prices')+' ('+cur+')'}>
+      <div className="flex gap-2 mb-4"><input type="number" min="0" className={inp} placeholder={t('Price per night')} value={bulk} onChange={e=>setBulk(e.target.value)}/><button className={btn2+' shrink-0'} onClick={applyAll}>{t('Apply to all rooms')}</button></div>
+      {CONFIG.floors.map(f=>(<div key={f} className="mb-4"><h3 className="font-serif mb-2">{t('Floor {0}',f)}</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">{s.rooms.filter(r=>r.floor===f).map(r=>(<label key={r.id} className="flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2"><span className="font-semibold w-10">{r.id}</span><input type="number" min="0" className="w-full bg-transparent" value={rates[r.id]===undefined?'':rates[r.id]} onChange={e=>setRates(x=>({...x,[r.id]:e.target.value}))}/></label>))}</div></div>))}
+    </Card>
+    <Card title={t('Services prices (per stay)')+' ('+cur+')'} className="self-start">
+      <div className="space-y-2 mb-4">{CONFIG.services.map(v=>(<Field key={v} label={t(v)}><input type="number" min="0" className={inp} value={sp[v]===undefined?'':sp[v]} onChange={e=>setSp(x=>({...x,[v]:e.target.value}))}/></Field>))}</div>
+      <button className={btn+' w-full'} onClick={save}>{t('Save')}</button>
+    </Card>
+  </div>);
+}
+
+function Receipt({g,onClose}){
+  const {t,money}=useL();
+  const ref=useRef(null);const [sc,setSc]=useState(1);const [h,setH]=useState(0);
+  const dir=document.documentElement.dir||'ltr';
+  const paid=paidOf(g),total=totalOf(g),bal=balOf(g);
+  const pays=Array.isArray(g.payments)&&g.payments.length?g.payments:(paid>0?[{amount:paid,method:g.paidMethod,at:g.ts}]:[]);
+  const fd=ts=>{if(!ts)return'';const d=new Date(ts);return ymd(d)+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})};
+  useEffect(()=>{const f=()=>{const k=Math.min(1,(window.innerWidth-24)/559);setSc(k);if(ref.current)setH(ref.current.offsetHeight*k)};f();window.addEventListener('resize',f);return()=>window.removeEventListener('resize',f)},[]);
+  const row=(l,v,b)=>(<div style={{display:'flex',justifyContent:'space-between',gap:'12px',padding:'3px 0',fontWeight:b?700:400,borderTop:b?'1px solid #000':'none',marginTop:b?'4px':0}}><span>{l}</span><span>{v}</span></div>);
+  return(<div dir="ltr" className="police-wrap fixed inset-0 z-50 overflow-auto bg-slate-400 p-3">
+    <div className="no-print mx-auto mb-3 flex gap-2 justify-end" style={{maxWidth:Math.max(300,559*sc)}}>
+      <button className={btn} onClick={()=>{try{window.print()}catch(e){}}}>{t('Print or save as PDF')}</button>
+      <button className="rounded-lg px-4 py-2.5 font-medium bg-white text-ink" onClick={onClose}>{t('Close')}</button>
+    </div>
+    <div className="police-box mx-auto" style={{width:559*sc,height:h||undefined}}>
+      <div id="police" ref={ref} dir={dir} className="rcpt bg-white text-black shadow-xl" style={{width:'148mm',minHeight:'210mm',boxSizing:'border-box',padding:'10mm',fontSize:'12px',transformOrigin:'top left',transform:'scale('+sc+')',fontFamily:dir==='rtl'?"'IBM Plex Sans Arabic',Tahoma,sans-serif":'Georgia,serif'}}>
+        <div style={{textAlign:'center',borderBottom:'2px solid #000',paddingBottom:'8px',marginBottom:'10px'}}><div style={{fontSize:'20px',fontWeight:700}}>{CONFIG.name}</div><div>{t('Receipt')} · {t('Receipt no.')} {g.seq}</div><div>{t('Date')}: {ymd()}</div></div>
+        {row(t('Guest'),g.name)}{row(t(g.docType),g.docId)}{row(t('Room'),g.room)}
+        {row(t('Arrival'),g.inDate||'')}{row(t('Departure'),g.outDate||'')}
+        <div style={{height:'8px'}}></div>
+        {g.rate!=null&&row(t('{0} nights × {1}',g.nights||1,money(g.rate)),money((g.nights||1)*g.rate))}
+        {Number(g.extras)>0&&row(t('Services total'),money(g.extras))}
+        {row(t('Total due'),money(total),true)}
+        <div style={{marginTop:'10px',fontWeight:700}}>{t('Payments')}</div>
+        {pays.length===0&&<div>—</div>}
+        {pays.map((p,i)=>row(fd(p.at)+' · '+t(p.method==='card'?'Card':'Cash'),money(p.amount)))}
+        {row(t('Paid'),money(paid),true)}
+        {row(t('Balance'),money(bal),true)}
+        <div style={{marginTop:'28px',display:'flex',justifyContent:'space-between'}}><span>{t('Signature')}: ____________</span><span>{t('Thank you for staying with us.')}</span></div>
+      </div></div></div>);
+}
+
+const TABS=[['dash','Overview','▦'],['desk','Reception','✎'],['rooms','Rooms','▤'],['shift','Shift','◷'],['inc','Incidents','!'],['arch','Archive','▣'],['perm','Permissions','⚙'],['price','Prices','＄']];
 const LANGS=[['ar','عربي'],['fr','FR'],['en','EN']];
 const AUTHMSG={wrong:'Wrong email or password.',network:'Network error. Check your connection.',unauthorized:'This account is not authorized for this hotel.'};
 
@@ -687,6 +835,7 @@ function App(){
   const [dark,setDark]=useState(()=>{try{return localStorage.getItem('hotel:theme')!=='light'}catch(e){return true}});
   const [msg,setMsg]=useState('');
   const [police,setPolice]=useState(false);
+  const [receipt,setReceipt]=useState(null);
   const [online,setOnline]=useState(navigator.onLine);
   const last=useRef(Date.now());
   const cur=CONFIG.currency[lang];
@@ -697,7 +846,7 @@ function App(){
   const {s,ready,A}=useHotel(user||null,errH);
   const isMgr=!!user&&user.role==='manager';
   const can=k=>isMgr||!!(user&&user.perms&&user.perms[k]===true);
-  const tabs=TABS.filter(([k])=>k==='dash'||k==='arch'||k==='perm'?isMgr:k==='desk'?(can('checkin')||can('police')):k==='rooms'?can('rooms'):k==='inc'?can('incidents'):true);
+  const tabs=TABS.filter(([k])=>k==='dash'||k==='arch'||k==='perm'||k==='price'?isMgr:k==='desk'?(can('checkin')||can('police')):k==='rooms'?can('rooms'):k==='inc'?can('incidents'):true);
   const show=k=>tab===k&&tabs.some(x=>x[0]===k);
   useEffect(()=>{if(ENV_ERR)return;const un=auth.onAuthStateChanged(async u=>{
     if(!u){setUser(null);return}
@@ -726,7 +875,7 @@ function App(){
   useEffect(()=>{const bump=()=>{last.current=Date.now()};const ev=['pointerdown','keydown','touchstart'];ev.forEach(e=>window.addEventListener(e,bump));
     const iv=setInterval(()=>{if(user&&user.role!=='manager'&&Date.now()-last.current>CONFIG.lockMinutes*60000)auth.signOut()},5000);
     return()=>{ev.forEach(e=>window.removeEventListener(e,bump));clearInterval(iv)}},[user&&user.uid]);
-  const ctx={t,tf,money,cur,isMgr,A,user,can,openPolice:()=>setPolice(true)};
+  const ctx={t,tf,money,cur,isMgr,A,user,can,openPolice:()=>setPolice(true),openReceipt:g=>setReceipt(g)};
   if(ENV_ERR)return(<Ctx.Provider value={ctx}><div className="min-h-screen grid place-items-center p-6 text-center"><div className="max-w-sm"><div className="text-4xl mb-3">⚠</div><p>{t(ENV_ERR==='sdk'?'Could not load Firebase. Check your internet connection and open the website address.':'This app must be opened from its website address (https), not as a local file.')}</p></div></div></Ctx.Provider>);
   if(user===undefined)return(<Ctx.Provider value={ctx}><div className="min-h-screen grid place-items-center text-slate-500">{t('Loading…')}</div></Ctx.Provider>);
   if(!user)return(<Ctx.Provider value={ctx}><Login lang={lang} setLang={setLang} dark={dark} setDark={setDark} err={authErr}/></Ctx.Provider>);
@@ -753,13 +902,14 @@ function App(){
       </header>
       <main className="px-4 md:px-8">
         {noRooms?(isMgr?<Card title={t('Hotel setup')}><p className="mb-3">{t('No rooms yet. Create the rooms to start.')}</p><button className={btn} onClick={()=>A.initRooms()}>{t('Create {0} rooms',CONFIG.floors.length*CONFIG.roomsPerFloor)}</button></Card>:<Card><p>{t('The manager has not set up the rooms yet.')}</p></Card>):(<>
-          {show('dash')&&<Dashboard {...P} openPolice={()=>setPolice(true)}/>}{show('desk')&&<ReceptionTab {...P}/>}{show('rooms')&&<RoomsTab {...P}/>}{show('shift')&&<ShiftTab {...P}/>}{show('inc')&&<IncidentsTab {...P}/>}{show('arch')&&<ArchiveTab/>}{show('perm')&&<PermissionsTab toast={setMsg}/>}</>)}
+          {show('dash')&&<Dashboard {...P} openPolice={()=>setPolice(true)}/>}{show('desk')&&<ReceptionTab {...P}/>}{show('rooms')&&<RoomsTab {...P}/>}{show('shift')&&<ShiftTab {...P}/>}{show('inc')&&<IncidentsTab {...P}/>}{show('arch')&&<ArchiveTab/>}{show('perm')&&<PermissionsTab toast={setMsg}/>}{show('price')&&<PricesTab {...P}/>}</>)}
       </main>
     </div>
-    <nav className={'md:hidden fixed bottom-0 inset-x-0 bg-ink text-slate-300 grid border-t border-white/10 '+({3:'grid-cols-3',4:'grid-cols-4',5:'grid-cols-5',6:'grid-cols-6',7:'grid-cols-7'}[tabs.length]||'grid-cols-4')} style={{paddingBottom:'env(safe-area-inset-bottom,0px)'}}>
-      {tabs.map(([k,l,i])=>(<button key={k} onClick={()=>setTab(k)} className={'py-2.5 '+(tabs.length>5?'text-[10px]':'text-xs')+' flex flex-col items-center gap-0.5 '+(tab===k?'text-brass font-semibold':'')}><span className="text-lg leading-none">{i}</span>{t(l)}</button>))}
+    <nav className="md:hidden fixed bottom-0 inset-x-0 bg-ink text-slate-300 flex overflow-x-auto border-t border-white/10" style={{paddingBottom:'env(safe-area-inset-bottom,0px)'}}>
+      {tabs.map(([k,l,i])=>(<button key={k} onClick={()=>setTab(k)} className={'shrink-0 flex-1 min-w-[68px] py-2.5 text-xs flex flex-col items-center gap-0.5 '+(tab===k?'text-brass font-semibold':'')}><span className="text-lg leading-none">{i}</span>{t(l)}</button>))}
     </nav>
     {police&&<Police s={s} onClose={()=>setPolice(false)}/>}
+    {receipt&&<Receipt g={receipt} onClose={()=>setReceipt(null)}/>}
     {msg&&<div role="status" className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] rounded-lg bg-brass text-ink px-4 py-2.5 shadow-lg text-sm font-medium max-w-[90vw]" style={{marginTop:'env(safe-area-inset-top,0px)'}}>{msg}</div>}
   </div></Ctx.Provider>);
 }
